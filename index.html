@@ -256,213 +256,755 @@
             <button class="login-btn"  style="height: 100%; width: 30%; margin-right: 1rem; font-weight: 100;">TRY SGATE</button>
         </div>
     </section>
-    <section id="Download App" class="section download-app">
+
+    <section id="Download App" class="section download">
+        <style>
+            .download {
+                padding: 6rem 2rem;
+                position: relative;
+                overflow: hidden;
+                background: radial-gradient(circle at center, rgba(112, 0, 255, 0.15) 0%, transparent 80%);
+            }
+            .download::before {
+                content: '';
+                position: absolute;
+                width: 250%;
+                height: 250%;
+                background: var(--gradient);
+                opacity: 0.08;
+                animation: rotate 25s linear infinite;
+                top: -75%;
+                left: -75%;
+            }
+            @keyframes rotate {
+                from { transform: rotate(0deg) scale(0.95); }
+                50% { transform: rotate(180deg) scale(1.05); }
+                to { transform: rotate(360deg) scale(0.95); }
+            }
+            .download-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                text-align: center;
+                position: relative;
+            }
+            .download h2 {
+                font-size: 4rem;
+                margin-bottom: 2rem;
+                background: var(--gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-shadow: 0 0 25px rgba(0, 255, 213, 0.6);
+                animation: glowText 3s ease-in-out infinite;
+            }
+            @keyframes glowText {
+                0%, 100% { text-shadow: 0 0 25px rgba(0, 255, 213, 0.6); }
+                50% { text-shadow: 0 0 40px rgba(112, 0, 255, 0.8); }
+            }
+            .download-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 4rem;
+                margin-top: 3rem;
+                align-items: center;
+                perspective: 2000px;
+            }
+            .download-info {
+                text-align: left;
+                position: relative;
+                transform: translateZ(50px);
+            }
+            .download-info::after {
+                content: '';
+                position: absolute;
+                width: 300px;
+                height: 300px;
+                background: var(--secondary);
+                filter: blur(120px);
+                opacity: 0.25;
+                z-index: -1;
+                animation: morphBlob 8s ease-in-out infinite;
+            }
+            @keyframes morphBlob {
+                0%, 100% { transform: scale(1) rotate(0deg); border-radius: 40% 60% 70% 30%; }
+                25% { transform: scale(1.2) rotate(90deg); border-radius: 60% 40% 30% 70%; }
+                50% { transform: scale(0.8) rotate(180deg); border-radius: 30% 60% 70% 40%; }
+                75% { transform: scale(1.1) rotate(270deg); border-radius: 70% 30% 40% 60%; }
+            }
+            .download-info h3 {
+                font-size: 2.8rem;
+                margin-bottom: 1.5rem;
+                color: var(--primary);
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                animation: shimmer 3s linear infinite;
+            }
+            @keyframes shimmer {
+                0% { color: var(--primary); }
+                33% { color: var(--secondary); }
+                66% { color: var(--accent); }
+                100% { color: var(--primary); }
+            }
+            .download-info p {
+                font-size: 1.3rem;
+                margin-bottom: 2rem;
+                line-height: 1.8;
+                text-shadow: 0 0 15px rgba(0, 255, 213, 0.4);
+                opacity: 0.9;
+            }
+            .store-buttons {
+                display: flex;
+                gap: 1.5rem;
+                perspective: 1000px;
+            }
+            .store-button {
+                padding: 1.2rem 2.5rem;
+                border: 2px solid var(--primary);
+                border-radius: 20px;
+                background: rgba(0, 255, 213, 0.05);
+                color: var(--light);
+                font-size: 1.2rem;
+                cursor: pointer;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                position: relative;
+                overflow: hidden;
+                backdrop-filter: blur(5px);
+            }
+            .store-button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                transition: 0.6s;
+            }
+            .store-button:hover::before {
+                left: 100%;
+            }
+            .store-button:hover {
+                transform: translateY(-8px) rotateX(15deg);
+                background: var(--gradient);
+                border-color: transparent;
+                box-shadow: 0 15px 30px rgba(0, 255, 213, 0.4),
+                           inset 0 0 15px rgba(255, 255, 255, 0.3);
+                letter-spacing: 2px;
+            }
+            .app-preview {
+                position: relative;
+                transform-style: preserve-3d;
+                animation: floatApp 12s ease-in-out infinite;
+            }
+            @keyframes floatApp {
+                0%, 100% { transform: translateY(0) rotateY(0) translateZ(50px); }
+                25% { transform: translateY(-25px) rotateY(10deg) translateZ(80px); }
+                50% { transform: translateY(0) rotateY(0) translateZ(50px); }
+                75% { transform: translateY(-25px) rotateY(-10deg) translateZ(80px); }
+            }
+            .app-preview img {
+                max-width: 100%;
+                border-radius: 40px;
+                box-shadow: 0 0 40px rgba(0, 255, 213, 0.4),
+                           0 0 80px rgba(112, 0, 255, 0.3),
+                           0 0 120px rgba(255, 0, 212, 0.2);
+                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                filter: brightness(1.1) contrast(1.1);
+            }
+            .app-preview img:hover {
+                transform: scale(1.08) translateZ(30px);
+                box-shadow: 0 0 60px rgba(0, 255, 213, 0.6),
+                           0 0 100px rgba(112, 0, 255, 0.4),
+                           0 0 140px rgba(255, 0, 212, 0.3);
+                filter: brightness(1.2) contrast(1.2);
+            }
+        </style>
         <div class="download-content">
-            <h2 class="gradient-text">Download SGATE App</h2>
-            <p>Experience seamless security on your mobile device</p>
-            <div class="store-buttons">
-                <a href="#" class="store-button">
-                    <span class="store-text">Download App</span>
-                </a>
+            <h2>Embrace The Future of Security</h2>
+            <div class="download-grid">
+                <div class="download-info">
+                    <h3>Beyond Passwords</h3>
+                    <p>Experience security reimagined. SGATE's groundbreaking QR authentication system doesn't just protect - it revolutionizes how you think about digital security. Join thousands who've already stepped into the future.</p>
+                    <div class="store-buttons">
+                        <button class="store-button">
+                            <i class="fab fa-google-play"></i>
+                            Get for Android
+                        </button>
+                    </div>
+                </div>
+                <div class="app-preview">
+                    <img src="sc.png" alt="SGATE App Preview" style="max-width: 50%;">
+                </div>
             </div>
-            <div class="app-features">
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-qrcode"></i>
+        </div>
+    </section>
+    <section id="about" class="section about">
+        <style>
+            .about {
+                padding: 4rem 2rem;
+                position: relative;
+                overflow: hidden;
+            }
+            .about-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                text-align: center;
+            }
+            .about h2 {
+                font-size: 3.5rem;
+                margin-bottom: 1.5rem;
+                background: var(--gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .about-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+                margin-top: 2rem;
+            }
+            .about-card {
+                background: rgba(255, 255, 255, 0.05);
+                padding: 1.5rem;
+                border-radius: 15px;
+                backdrop-filter: blur(10px);
+                transform-style: preserve-3d;
+                transition: transform 0.3s ease;
+            }
+            .about-card:hover {
+                transform: translateY(-10px);
+            }
+            .about-card h3 {
+                font-size: 1.8rem;
+                margin-bottom: 0.8rem;
+                color: var(--primary);
+            }
+            .about-card p {
+                color: #a0a0a0;
+                line-height: 1.6;
+            }
+            @media (max-width: 968px) {
+                .about-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media (max-width: 768px) {
+                .about h2 {
+                    font-size: 2.5rem;
+                }
+                .about-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <div class="about-content">
+            <h2>About SGATE</h2>
+            <p style="font-size: 1.2rem; color: #a0a0a0; max-width: 800px; margin: 0 auto 2rem;">Revolutionizing authentication through innovative QR technology and advanced security measures</p>
+            <div class="about-grid">
+                <div class="about-card">
+                    <h3>Our Mission</h3>
+                    <p>To provide a seamless and secure authentication experience that eliminates the need for complex passwords while maintaining the highest security standards.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Innovation</h3>
+                    <p>Leveraging cutting-edge QR technology and encryption methods to create a future-proof authentication solution for businesses and individuals.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Security First</h3>
+                    <p>Built with state-of-the-art security protocols and continuous monitoring to ensure your data remains protected at all times.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="developers" class="section developers">
+        <style>
+            .developers {
+                padding: 6rem 2rem;
+                background: rgba(3, 0, 20, 0.9);
+                position: relative;
+                z-index: 1;
+            }
+
+            .developers-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                text-align: center;
+            }
+
+            .developers h2 {
+                font-size: 3.5rem;
+                margin-bottom: 3rem;
+                background: var(--gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .developers-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+                margin-top: 3rem;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .developer-card {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                padding: 2rem;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .developer-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 30px rgba(0, 255, 213, 0.1);
+            }
+
+            .developer-image {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                margin: 0 auto 1.5rem;
+                border: 3px solid var(--primary);
+                overflow: hidden;
+            }
+
+            .developer-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .developer-card h3 {
+                font-size: 1.8rem;
+                margin-bottom: 0.5rem;
+                color: var(--primary);
+            }
+
+            .developer-role {
+                color: var(--accent);
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
+
+            .developer-bio {
+                color: #a0a0a0;
+                line-height: 1.6;
+                margin-bottom: 1.5rem;
+            }
+
+            .social-links {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .social-links a {
+                color: var(--light);
+                font-size: 1.5rem;
+                transition: color 0.3s ease;
+            }
+
+            .social-links a:hover {
+                color: var(--primary);
+            }
+
+            @media (max-width: 768px) {
+                .developers h2 {
+                    font-size: 2.5rem;
+                }
+                
+                .developers-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <div class="developers-content">
+            <h2>Meet Our Developer's</h2>
+            <p style="font-size: 1.2rem; color: #a0a0a0; max-width: 800px; margin: 0 auto 3rem;">
+                The brilliant minds behind SGATE's innovative authentication solution
+            </p>
+            <div class="developers-grid">
+                <div class="developer-card">
+                    <div class="developer-image">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJiFi3kbBt7Z0ASNVSaFoEcyHObquPtxgell0aAfayjXQ4kVEFsTYzseCfmGpjvlXPGyE&usqp=CAU" alt="Developer 1">
                     </div>
-                    <h3>Quick Scan</h3>
-                    <p>Instant authentication with QR code scanning</p>
-                    <div class="feature-hover">
-                        <p>Scan & login within seconds</p>
+                    <h3>Ankit Rawat</h3>
+                    <div class="developer-role">He /Him</div>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
                     </div>
                 </div>
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
+
+                <div class="developer-card">
+                    <div class="developer-image">
+                        <img src="https://avatars.githubusercontent.com/u/88914149?v=4" alt="Developer 2">
                     </div>
-                    <h3>Secure Access</h3>
-                    <p>End-to-end encrypted authentication process</p>
-                    <div class="feature-hover">
-                        <p>Military-grade encryption</p>
-                    </div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">
-                        <i class="fas fa-sync"></i>
-                    </div>
-                    <h3>Real-time Sync</h3>
-                    <p>Seamless synchronization across all your devices</p>
-                    <div class="feature-hover">
-                        <p>Always stay connected</p>
+                    <h3>Abhishek Bhatt</h3>
+                    <div class="developer-role">He /Him</div>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
+
+    <section id="contact" class="section contact">
         <style>
-            .download-app {
-                padding: 6rem 2rem;
-                text-align: center;
-                background: var(--bg-gradient);
+            .contact {
+                padding: 8rem 2rem;
+                background: linear-gradient(135deg, rgba(3, 0, 20, 0.95), rgba(0, 0, 0, 0.98));
+                position: relative;
+                z-index: 1;
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-            }
-            
-            .gradient-text {
-                background: linear-gradient(45deg, #00ffd5, #7000ff, #ff00d4);
-                -webkit-background-clip: text;
-                background-clip: text;
-                -webkit-text-fill-color: transparent;
-                font-size: 3.5rem;
-                margin-bottom: 1.5rem;
-                animation: gradientMove 5s ease infinite;
             }
 
-            @keyframes gradientMove {
+            .contact::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNSkiLz48L3N2Zz4=');
+                opacity: 0.5;
+                z-index: -1;
+            }
+
+            .contact-content {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 4rem;
+                align-items: center;
+            }
+
+            .contact-info {
+                color: #fff;
+            }
+
+            .contact h2 {
+                font-size: clamp(2.5rem, 5vw, 4.5rem);
+                line-height: 1.1;
+                margin-bottom: 2rem;
+                background: linear-gradient(45deg, #00ffd5, #7000ff, #ff00d4);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-size: 200% 200%;
+                animation: gradientText 5s ease infinite;
+            }
+
+            @keyframes gradientText {
                 0% { background-position: 0% 50%; }
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
             }
-            
-            .download-content {
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            
-            .download-content p {
-                font-size: 1.4rem;
+
+            .contact-info p {
+                font-size: clamp(1rem, 1.5vw, 1.2rem);
+                color: #a0a0a0;
+                line-height: 1.8;
                 margin-bottom: 3rem;
-                color: var(--text-secondary);
             }
-            
-            .store-buttons {
-                display: flex;
-                justify-content: center;
-                gap: 2rem;
-                margin-bottom: 4rem;
-                flex-wrap: wrap;
+
+            .contact-form-container {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 24px;
+                padding: clamp(2rem, 4vw, 3.5rem);
+                backdrop-filter: blur(20px);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                transform-style: preserve-3d;
+                perspective: 1000px;
             }
-            
-            .store-button {
+
+            .form-group {
+                margin-bottom: 2rem;
                 position: relative;
-                overflow: hidden;
-                border-radius: 12px;
-                padding: 1rem 2rem;
-                background: linear-gradient(45deg, #00ffd5, #7000ff);
-                transition: all 0.3s ease;
-                text-decoration: none;
-            }
-            
-            .store-button:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             }
 
-            .store-text {
-                font-size: 1.2rem;
-                color: white;
-                font-weight: bold;
-            }
-            
-            .app-features {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 2rem;
-                margin-top: 4rem;
-            }
-            
-            .feature {
-                position: relative;
-                padding: 2rem;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 20px;
-                backdrop-filter: blur(10px);
-                transition: all 0.4s ease;
-                overflow: hidden;
-                cursor: pointer;
-            }
-            
-            .feature:hover {
-                transform: translateY(-10px);
-                background: rgba(255, 255, 255, 0.1);
-            }
-
-            .feature-icon {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto 1.5rem;
-                background: linear-gradient(45deg, #00ffd5, #7000ff);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .feature i {
-                font-size: 2.5rem;
-                color: white;
-            }
-            
-            .feature h3 {
-                font-size: 1.8rem;
-                margin-bottom: 1rem;
-                color: var(--text-primary);
-            }
-            
-            .feature p {
-                font-size: 1.1rem;
-                color: var(--text-secondary);
-                margin-bottom: 1rem;
-            }
-
-            .feature-hover {
+            .form-group label {
                 position: absolute;
-                bottom: -100%;
-                left: 0;
+                left: 1rem;
+                top: 1rem;
+                color: #a0a0a0;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+                pointer-events: none;
+            }
+
+            .form-group input,
+            .form-group textarea {
                 width: 100%;
-                padding: 1.5rem;
-                background: linear-gradient(45deg, #00ffd5aa, #7000ffaa);
+                padding: 1.2rem;
+                background: rgba(255, 255, 255, 0.02);
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                color: #fff;
+                font-size: 1rem;
                 transition: all 0.3s ease;
             }
 
-            .feature:hover .feature-hover {
-                bottom: 0;
+            .form-group input:focus,
+            .form-group textarea:focus,
+            .form-group input:valid,
+            .form-group textarea:valid {
+                border-color: #00ffd5;
+                background: rgba(0, 255, 213, 0.05);
+            }
+
+            .form-group input:focus + label,
+            .form-group textarea:focus + label,
+            .form-group input:valid + label,
+            .form-group textarea:valid + label {
+                transform: translateY(-2.5rem);
+                font-size: 0.8rem;
+                color: #00ffd5;
+            }
+
+            .form-group textarea {
+                min-height: 180px;
+                resize: none;
+            }
+
+            .submit-btn {
+                width: 100%;
+                padding: 1.2rem;
+                background: linear-gradient(45deg, #00ffd5, #7000ff);
+                border: none;
+                border-radius: 16px;
+                color: #fff;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.5s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .submit-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: 0.5s;
+            }
+
+            .submit-btn:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0, 255, 213, 0.3);
+            }
+
+            .submit-btn:hover::before {
+                left: 100%;
+            }
+
+            @media (max-width: 992px) {
+                .contact-content {
+                    grid-template-columns: 1fr;
+                    gap: 3rem;
+                }
+
+                .contact-info {
+                    text-align: center;
+                }
             }
 
             @media (max-width: 768px) {
-                .gradient-text {
+                .contact {
+                    padding: 6rem 1.5rem;
+                }
+
+                .contact h2 {
                     font-size: 2.5rem;
                 }
-                
-                .download-content p {
-                    font-size: 1.2rem;
-                }
-                
-                .store-buttons {
-                    flex-direction: column;
-                    align-items: center;
-                }
-                
-                .app-features {
-                    grid-template-columns: 1fr;
+
+                .contact-form-container {
+                    padding: 2rem;
                 }
             }
 
             @media (max-width: 480px) {
-                .download-app {
+                .contact {
                     padding: 4rem 1rem;
                 }
-                
-                .gradient-text {
-                    font-size: 2rem;
-                }
-                
-                .feature {
-                    padding: 1.5rem;
+
+                .form-group {
+                    margin-bottom: 1.5rem;
                 }
             }
         </style>
+        <div class="contact-content">
+            <div class="contact-info">
+                <h2>Let's Create Something Amazing Together</h2>
+                <p>Have an idea? Want to explore possibilities? Or just want to say hello? We're here to turn your vision into reality. Drop us a message, and let's start a conversation that could lead to something extraordinary.</p>
+            </div>
+            <div class="contact-form-container">
+                <form id="contactForm" action="/submit-contact" method="POST">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" required>
+                        <label for="name">Your Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" required>
+                        <label for="email">Your Email</label>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" name="message" required></textarea>
+                        <label for="message">Your Message</label>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+                <script>
+                    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        
+                        const formData = {
+                            name: document.getElementById('name').value,
+                            email: document.getElementById('email').value,
+                            message: document.getElementById('message').value,
+                            timestamp: new Date().toISOString()
+                        };
+
+                        try {
+                            const response = await fetch('/submit-contact', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(formData)
+                            });
+
+                            if (response.ok) {
+                                document.getElementById('contactForm').reset();
+                                alert('Thank you for your message! We\'ll get back to you soon.');
+                            } else {
+                                alert('Oops! Something went wrong. Please try again.');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Oops! Something went wrong. Please try again.');
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+    </section>
+    <section id="footer" class="footer">
+        <style>
+            .footer {
+                background: rgba(3, 0, 20, 0.95);
+                padding: 4rem 2rem 2rem;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .footer-content {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 3rem;
+                color: #a0a0a0;
+            }
+
+            .footer-section h4 {
+                color: var(--primary);
+                font-size: 1.2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .footer-section ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .footer-section ul li {
+                margin-bottom: 0.8rem;
+            }
+
+            .footer-section ul li a {
+                color: #a0a0a0;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+            .footer-section ul li a:hover {
+                color: var(--primary);
+            }
+
+            .footer-bottom {
+                text-align: center;
+                margin-top: 3rem;
+                padding-top: 2rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .footer-social {
+                margin-bottom: 1.5rem;
+            }
+
+            .footer-social a {
+                color: #a0a0a0;
+                margin: 0 1rem;
+                font-size: 1.5rem;
+                transition: color 0.3s ease;
+            }
+
+            .footer-social a:hover {
+                color: var(--primary);
+            }
+
+            @media (max-width: 968px) {
+                .footer-content {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            @media (max-width: 576px) {
+                .footer-content {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><a href="#Download App" style="text-decoration: none; color: inherit;">Download App</a></h4>
+            </div>
+            <div class="footer-section">
+                <h4><a href="#about" style="text-decoration: none; color: inherit;">About Us</a></h4>
+            </div>
+            <div class="footer-section">
+                <h4><a href="#developers" style="text-decoration: none; color: inherit;">Developers Profile</a></h4>
+            </div>
+            <div class="footer-section">
+                <h4><a href="#contact" style="text-decoration: none; color: inherit;">Contact US</a></h4>
+            </div>
+        </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p>&copy; 2024 SGATE. All rights reserved.</p>
+        </div>
     </section>
     <script>
         // Three.js Scene Setup
