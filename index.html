@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGATE- QR Authentications</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ffd5;
+            --secondary: #7000ff;
+            --accent: #ff00d4;
+            --dark: #030014;
+            --light: #ffffff;
+            --gradient: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        @font-face {
+            font-family: 'Quantum';
+            src: url('https://fonts.cdnfonts.com/css/quantum');
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+            font-family: 'Quantum', sans-serif;
+            overflow-x: hidden;
+            perspective: 2000px;
+        }
+
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .nav {
+            position: fixed;
+            width: 100%;
+            padding: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(3, 0, 20, 0.8);
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'SGATE LOGO';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0.5;
+            animation: logoGlitch 3s infinite alternate;
+        }
+
+        @keyframes logoGlitch {
+            0%, 100% { transform: translate(0); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-1px, 1px); }
+        }
+
+        .menu-items {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 0.5rem 1rem;
+            color: var(--light);
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient);
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+
+        .menu-item:hover::before {
+            transform: translateX(0);
+        }
+
+        .login-btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 30px;
+            background: var(--gradient);
+            color: var(--light);
+            font-family: 'Quantum', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            transform-style: preserve-3d;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+            animation: shine 1.5s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .login-btn:hover {
+            transform: scale(1.05) translateZ(20px);
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .menu-items {
+                display: none;
+            }
+        }
+
+        .section {
+            min-height: 100vh;
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 0;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translateZ(50px);
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            color: #a0a0a0;
+            transform: translateZ(30px);
+        }
+
+    </style>
+</head>
+<body>
+    <div id="scene-container"></div>
+    
+    <nav class="nav">
+        <div class="logo"><img src="logo.png" text="SGATE Logo" class="logo-img" style="height: 30px; width: auto; margin-right: 1rem;">SGATE</div>
+        <div class="menu-items">
+            <a href="#Download App" class="menu-item">Download App</a>
+            <a href="#about" class="menu-item">About US</a>
+            <a href="#developers" class="menu-item">Developers Profile</a>
+            <button class="login-btn">Login</button>
+        </div>
+    </nav>
+
+<br>
+<br>
+    <section class="section hero">
+        <div class="hero-content">
+            <h3 class="animated-text">SAY 👋 to Complex Passwords</h3>
+            <style>
+                .animated-text {
+                    background: var(--gradient);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    animation: gradientFlow 5s linear infinite;
+                    font-size: 3rem;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                }
+
+                @keyframes gradientFlow {
+                    0% {
+                        background-position: 0% 50%;
+                    }
+                    50% {
+                        background-position: 100% 50%; 
+                    }
+                    100% {
+                        background-position: 0% 50%;
+                    }
+                }
+            </style>
+            <p>Enter a new dimension of security with Sgate's cutting-edge QR authentication system</p>
+            <button class="login-btn"  style="height: 100%; width: 30%; margin-right: 1rem; font-weight: 100;">TRY SGATE</button>
+        </div>
+    </section>
+    <section id="Download App" class="section download-app">
+        <div class="download-content">
+            <h2 class="gradient-text">Download SGATE App</h2>
+            <p>Experience seamless security on your mobile device</p>
+            <div class="store-buttons">
+                <a href="#" class="store-button">
+                    <span class="store-text">Download App</span>
+                </a>
+            </div>
+            <div class="app-features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3>Quick Scan</h3>
+                    <p>Instant authentication with QR code scanning</p>
+                    <div class="feature-hover">
+                        <p>Scan & login within seconds</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure Access</h3>
+                    <p>End-to-end encrypted authentication process</p>
+                    <div class="feature-hover">
+                        <p>Military-grade encryption</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <h3>Real-time Sync</h3>
+                    <p>Seamless synchronization across all your devices</p>
+                    <div class="feature-hover">
+                        <p>Always stay connected</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .download-app {
+                padding: 6rem 2rem;
+                text-align: center;
+                background: var(--bg-gradient);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .gradient-text {
+                background: linear-gradient(45deg, #00ffd5, #7000ff, #ff00d4);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-size: 3.5rem;
+                margin-bottom: 1.5rem;
+                animation: gradientMove 5s ease infinite;
+            }
+
+            @keyframes gradientMove {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            
+            .download-content {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            .download-content p {
+                font-size: 1.4rem;
+                margin-bottom: 3rem;
+                color: var(--text-secondary);
+            }
+            
+            .store-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                margin-bottom: 4rem;
+                flex-wrap: wrap;
+            }
+            
+            .store-button {
+                position: relative;
+                overflow: hidden;
+                border-radius: 12px;
+                padding: 1rem 2rem;
+                background: linear-gradient(45deg, #00ffd5, #7000ff);
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+            
+            .store-button:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            }
+
+            .store-text {
+                font-size: 1.2rem;
+                color: white;
+                font-weight: bold;
+            }
+            
+            .app-features {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                margin-top: 4rem;
+            }
+            
+            .feature {
+                position: relative;
+                padding: 2rem;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 20px;
+                backdrop-filter: blur(10px);
+                transition: all 0.4s ease;
+                overflow: hidden;
+                cursor: pointer;
+            }
+            
+            .feature:hover {
+                transform: translateY(-10px);
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .feature-icon {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 1.5rem;
+                background: linear-gradient(45deg, #00ffd5, #7000ff);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .feature i {
+                font-size: 2.5rem;
+                color: white;
+            }
+            
+            .feature h3 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+                color: var(--text-primary);
+            }
+            
+            .feature p {
+                font-size: 1.1rem;
+                color: var(--text-secondary);
+                margin-bottom: 1rem;
+            }
+
+            .feature-hover {
+                position: absolute;
+                bottom: -100%;
+                left: 0;
+                width: 100%;
+                padding: 1.5rem;
+                background: linear-gradient(45deg, #00ffd5aa, #7000ffaa);
+                transition: all 0.3s ease;
+            }
+
+            .feature:hover .feature-hover {
+                bottom: 0;
+            }
+
+            @media (max-width: 768px) {
+                .gradient-text {
+                    font-size: 2.5rem;
+                }
+                
+                .download-content p {
+                    font-size: 1.2rem;
+                }
+                
+                .store-buttons {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                
+                .app-features {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .download-app {
+                    padding: 4rem 1rem;
+                }
+                
+                .gradient-text {
+                    font-size: 2rem;
+                }
+                
+                .feature {
+                    padding: 1.5rem;
+                }
+            }
+        </style>
+    </section>
+    <script>
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('scene-container').appendChild(renderer.domElement);
+
+        // Create Security-themed Particles
+        const particleCount = 2000;
+        const particleGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+
+            // Create a data stream effect with alternating colors
+            const colorChoice = Math.random();
+            const color = new THREE.Color(
+                colorChoice > 0.7 ? 0x00ffd5 : // Cyan
+                colorChoice > 0.4 ? 0x7000ff : // Purple
+                0xff00d4 // Pink
+            );
+            
+            colors[i * 3] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
+        }
+
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particles);
+
+        // Add ambient light
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        camera.position.z = 30;
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) / window.innerWidth;
+            mouseY = (event.clientY - window.innerHeight / 2) / window.innerHeight;
+        });
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Create flowing data stream effect
+            particles.rotation.y += 0.0005;
+            particles.rotation.x += 0.0002;
+
+            // Wave effect through particles
+            const positions = particleGeometry.attributes.position.array;
+            const time = Date.now() * 0.001;
+
+            for(let i = 0; i < positions.length; i += 3) {
+                positions[i + 2] += Math.sin(time + positions[i] * 0.1) * 0.1;
+            }
+            particleGeometry.attributes.position.needsUpdate = true;
+
+            // Smooth camera movement
+            camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Add scroll-based animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.from('.hero-content', {
+            duration: 1.5,
+            y: 100,
+            opacity: 0,
+            ease: 'power4.out'
+        });
+    </script>
+</body>
+</html>
