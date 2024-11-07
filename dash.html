@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGATE - Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ffd5;
+            --secondary: #7000ff;
+            --accent: #ff00d4;
+            --dark: #030014;
+            --light: #ffffff;
+            --gradient: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-dark: rgba(3, 0, 20, 0.9);
+        }
+
+        @font-face {
+            font-family: 'Quantum';
+            src: url('https://fonts.cdnfonts.com/css/quantum');
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+            font-family: 'Quantum', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            perspective: 1000px;
+        }
+
+        #scene-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .nav {
+            width: 100%;
+            padding: 0.5rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-dark);
+            backdrop-filter: blur(10px);
+            height: 60px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--glass);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-img {
+            height: 30px;
+            width: auto;
+            margin-right: 0.5rem;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            height: calc(100vh - 60px);
+            display: grid;
+            grid-template-columns: 300px 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            transform-style: preserve-3d;
+        }
+
+        .profile-section {
+            background: var(--glass);
+            padding: 1.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            text-align: center;
+            height: 100%;
+            border: 1px solid var(--glass);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transform: translateZ(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-section:hover {
+            transform: translateZ(30px) scale(1.02);
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            background: var(--gradient);
+            padding: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-picture::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-picture:hover img {
+            transform: scale(1.1);
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .device-card {
+            background: var(--glass);
+            border-radius: 20px;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--glass);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transform: translateZ(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, var(--glass), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateZ(20px) scale(1.02);
+        }
+
+        .device-card:hover::before {
+            opacity: 0.2;
+        }
+
+        .device-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .device-card:hover .device-image {
+            transform: rotate(-5deg) scale(1.1);
+        }
+
+        .device-name {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        .device-details {
+            color: #a0a0a0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+
+        .device-card:hover .device-details {
+            color: #ffffff;
+        }
+
+        .device-details p {
+            margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .device-details p:hover {
+            transform: translateX(10px);
+            color: var(--primary);
+        }
+
+        .logout-btn {
+            padding: 0.6rem 1.4rem;
+            background: var(--gradient);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-history {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass);
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .login-history::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        .device-card:hover .login-history::before {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="scene-container"></div>
+    <nav class="nav">
+        <div class="logo">
+            <img src="logo.png" alt="SGATE Logo" class="logo-img">SGATE
+        </div>
+        <button class="logout-btn">Logout</button>
+    </nav>
+
+    <div class="main-container">
+        <div class="profile-section">
+            <div class="profile-picture">
+                <img src="profile.jpg" alt="John Doe">
+            </div>
+            <h1 class="profile-name">John Doe</h1>
+            <div class="device-details">
+                <p>john.doe@example.com</p>
+                <p>Account Type: Premium</p>
+                <p>Member Since: 2023</p>
+                <p>Security Score: 92%</p>
+            </div>
+        </div>
+
+        <div class="device-card">
+            <img src="chrome.png" alt="Chrome Browser" class="device-image">
+            <div class="device-name">Web Browser Activity</div>
+            <div class="device-details">
+                <p>Browser: Chrome 118.0.5993.89</p>
+                <p>OS: Windows 11 Pro</p>
+                <p>Screen: 1920x1080</p>
+                <p>Language: English (US)</p>
+                <p>Timezone: IST (UTC+5:30)</p>
+                <div class="login-history">
+                    <p>Last Login: 2023-10-15 14:30</p>
+                    <p>Location: Mumbai, India</p>
+                    <p>IP: 103.168.xx.xx</p>
+                    <p>Active Sessions: 2</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="device-card">
+            <img src="iphone14pro.png" alt="iPhone 14 Pro" class="device-image">
+            <div class="device-name">Mobile Device</div>
+            <div class="device-details">
+                <p>Device: iPhone 14 Pro</p>
+                <p>Model: A2650</p>
+                <p>iOS: 16.5.1</p>
+                <p>Storage: 256GB (180GB Free)</p>
+                <p>Display: 6.1" Super Retina XDR</p>
+                <p>Processor: A16 Bionic</p>
+                <p>RAM: 6GB</p>
+                <div class="login-history">
+                    <p>Last SGATE Login: 2023-10-15 16:45</p>
+                    <p>App Version: 2.1.0</p>
+                    <p>Location: Delhi, India</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Three.js script remains exactly the same as before
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('scene-container').appendChild(renderer.domElement);
+
+        const particleCount = 2000;
+        const particleGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+
+            const colorChoice = Math.random();
+            const color = new THREE.Color(
+                colorChoice > 0.7 ? 0x00ffd5 :
+                colorChoice > 0.4 ? 0x7000ff :
+                0xff00d4
+            );
+            
+            colors[i * 3] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
+        }
+
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particles);
+
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        camera.position.z = 30;
+
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) / window.innerWidth;
+            mouseY = (event.clientY - window.innerHeight / 2) / window.innerHeight;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            particles.rotation.y += 0.0005;
+            particles.rotation.x += 0.0002;
+
+            const positions = particleGeometry.attributes.position.array;
+            const time = Date.now() * 0.001;
+
+            for(let i = 0; i < positions.length; i += 3) {
+                positions[i + 2] += Math.sin(time + positions[i] * 0.1) * 0.1;
+            }
+            particleGeometry.attributes.position.needsUpdate = true;
+
+            camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        gsap.from('.device-card', {
+            duration: 1,
+            y: 50,
+            opacity: 0,
+            stagger: 0.2,
+            ease: 'power4.out'
+        });
+
+        // Add hover effect to device cards
+        document.querySelectorAll('.device-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const xPercent = x / rect.width;
+                const yPercent = y / rect.height;
+                
+                const rotateX = (yPercent - 0.5) * 10;
+                const rotateY = (xPercent - 0.5) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+    </script>
+</body>
+</html>
