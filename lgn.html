@@ -185,6 +185,11 @@
             color: white;
         }
 
+        .qr-btn {
+            background: linear-gradient(45deg, #00ffd5, #7000ff);
+            color: white;
+        }
+
         .social-btn:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -236,10 +241,15 @@
             </div>
             <div class="form-group">
                 <input type="password" placeholder="Password" required>
+                <a href="forgot.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem; margin-top: 0.5rem;"><u>Forgot Password?</u></a>
             </div>
             <button type="submit" class="login-btn">Login</button>
             
             <div class="social-login">
+                <button type="button" class="social-btn qr-btn" onclick="window.location.href='qr-login.html'">
+                    <i class="fas fa-qrcode"></i>
+                    Login with QR Code
+                </button>
                 <button type="button" class="social-btn google-btn">
                     <i class="fab fa-google"></i>
                     Continue with Google
@@ -248,10 +258,7 @@
                     <i class="fab fa-facebook-f"></i>
                     Continue with Facebook
                 </button>
-                <button type="button" class="social-btn github-btn">
-                    <i class="fab fa-github"></i>
-                    Continue with GitHub
-                </button>
+                
             </div>
         </form>
     </div>
