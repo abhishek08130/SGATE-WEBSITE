@@ -147,7 +147,7 @@
         }
 
         .login-form {
-            background: rgba(3, 0, 20, 0.9);
+            background: rgba(255, 255, 255, 0.9);
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
@@ -206,7 +206,7 @@
             padding: 0.5rem;
             border-radius: 6px;
             text-align: center;
-            color: #d4d0d0;
+            color: #000000;
         }
     </style>
 </head>
@@ -219,65 +219,64 @@
         <div class="login-container">
             <form class="login-form">
             <h2>SGATE QR AUTHENTICATION</h2>
+            <p style="background: linear-gradient(45deg, #000000, #333333); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><b>Open SGATE Mobile App to scan QR code.</b></p>
             <div class="form-group">
                 <div id="qrcode"></div>
             <div id="statusMessage">Waiting for QR scan...</div>
         </div>
+        <a href="login.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem; display: block; text-align: center;">Back to Login</a>
         </form>
     </div>
 
     <script>
+let verificationInterval;
 
-        async function generateQRCode() {
-            try {
-                console.log("Requesting token generation...");
-                const response = await fetch('https://tests.sskarateschool.in/generate-token');
-                const data = await response.json();
-                const { tokenId, token } = data;
+async function generateQRCode() {
+    try {
+        console.log("Requesting token generation...");
+        const response = await fetch('http://localhost:3000/generate');
+        const data = await response.json();
+        const {token} = data;
 
-                console.log("Token generated:", { tokenId, token });
-                new QRCode(document.getElementById("qrcode"), {
-                    text: token, // Use the JWT token as the QR code content
-                    width: 256,
-                    height: 256
-                });
+        console.log("Token generated:", {token });
+        new QRCode(document.getElementById("qrcode"), {
+            text: token, // Use the JWT token as the QR code content
+            width: 256,
+            height: 256
+        });
+        startVerification(token);
+    } catch (error) {
+        console.error("Error generating QR code:", error);
+    }
+}
 
-                console.log("Starting monitoring for token ID:", tokenId);
-                await fetch(`https://tests.sskarateschool.in/start-monitoring?tokenId=${tokenId}`);
-                pollVerificationStatus(tokenId);
-            } catch (error) {
-                console.error("Error generating QR code:", error);
-                document.getElementById("statusMessage").innerText = "Error generating QR code.";
-            }
-        }
-
-        async function pollVerificationStatus(tokenId) {
-            const statusMessage = document.getElementById("statusMessage");
-
-            const intervalId = setInterval(async () => {
-                try {
-                    console.log("Checking verification status for token ID:", tokenId);
-                    const response = await fetch(`https://sgate-passkey-default-rtdb.firebaseio.com/tokens/${tokenId}.json`);
-                    const tokenData = await response.json();
-                    console.log("Current token data:", tokenData);
-
-                    if (tokenData && tokenData.verified) {
-                        statusMessage.innerText = "Login successful!";
-                        clearInterval(intervalId);
-                        console.log("Token verified successfully.");
-                    } else {
-                        statusMessage.innerText = "Waiting for QR scan...";
-                    }
-                } catch (error) {
-                    console.error("Error checking verification status:", error);
-                    statusMessage.innerText = "Error checking verification status.";
-                }
-            }, 3000);
-        }
-
-        window.onload = generateQRCode;
-
+function startVerification(token) {
+    // Clear any existing interval
+    if (verificationInterval) {
+        clearInterval(verificationInterval);
+    }
     
+    // Start polling every 2 seconds
+    verificationInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/verify?token=${token}`);
+            const data = await response.json();
+            console.log("Token verification result:", data);
+            const {userId} = data;
+            if (userId) {
+                // Clear interval once verified
+                clearInterval(verificationInterval);
+                window.location.href = `http://localhost:5500/user/${userId}`;
+            }
+        } catch (error) {
+            console.error("Error verifying token:", error);
+            // Clear interval on error
+            clearInterval(verificationInterval);
+        }
+    }, 2000); // Poll every 2 seconds
+}
+
+window.onload = generateQRCode;
     </script>
     <script>
          const scene = new THREE.Scene();

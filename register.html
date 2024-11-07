@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGATE - Login</title>
+    <title>SGATE - Register</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -38,6 +38,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            width: 1920px;
         }
 
         #scene-container {
@@ -51,53 +52,62 @@
         }
 
         .nav {
-            position: fixed;
             width: 100%;
-            padding: 1rem;
+            padding: 2rem;
             z-index: 1000;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             background: rgba(3, 0, 20, 0.8);
             backdrop-filter: blur(10px);
             transform-style: preserve-3d;
+            height: 120px;
         }
 
         .logo {
-            font-size: 2rem;
+            font-size: 3.5rem;
             font-weight: bold;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
-        .login-container {
+        .logo-img {
+            height: 80px !important;
+            width: auto;
+            margin-right: 1rem !important;
+        }
+
+        .register-container {
             position: relative;
             z-index: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1rem;
-            margin-top: 2.5rem;
+            align-items: flex-start;
+            padding: 2rem;
+            margin-top: 20px;
+            width: 100%;
         }
 
-        .login-form {
+        .register-form {
             background: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
-            width: 100%;
-            max-width: 400px;
+            width: 400px;
             backdrop-filter: blur(10px);
             transform-style: preserve-3d;
             animation: formFloat 3s ease-in-out infinite;
         }
 
-        .login-form h2 {
+        .register-form h2 {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             font-size: 2rem;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -106,6 +116,7 @@
 
         .form-group {
             margin-bottom: 1.5rem;
+            width: 100%;
         }
 
         .form-group input {
@@ -123,7 +134,7 @@
             box-shadow: 0 0 10px rgba(112, 0, 255, 0.2);
         }
 
-        .login-btn {
+        .register-btn {
             width: 100%;
             padding: 12px;
             background: var(--gradient);
@@ -135,91 +146,32 @@
             transition: all 0.3s ease;
         }
 
-        .login-btn:hover {
+        .register-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 255, 213, 0.4);
         }
 
-        .social-login {
-            margin-top: 2rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .social-btn {
-            width: 100%;
-            padding: 12px 20px;
-            margin: 0;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
+        .terms-checkbox {
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             gap: 10px;
+            margin: 20px 0;
         }
 
-        .social-btn i {
-            font-size: 1.2rem;
+        .terms-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
 
-        .google-btn {
-            background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
-            color: white;
-            border: none;
+        .terms-checkbox label {
+            color: var(--dark);
+            font-size: 0.9rem;
         }
 
-        .facebook-btn {
-            background: linear-gradient(45deg, #1877f2, #0099ff);
-            color: white;
-        }
-
-        .github-btn {
-            background: linear-gradient(45deg, #24292e, #404448);
-            color: white;
-        }
-
-        .qr-btn {
-            background: linear-gradient(45deg, #00ffd5, #7000ff);
-            color: white;
-        }
-
-        .social-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .social-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
-        .social-btn:hover::before {
-            left: 100%;
-        }
-
-        @media (max-width: 480px) {
-            .login-form {
-                padding: 1.5rem;
-                max-width: 320px;
-            }
+        .terms-checkbox a {
+            color: var(--secondary);
+            text-decoration: none;
         }
 
         @keyframes formFloat {
@@ -229,37 +181,33 @@
     </style>
 </head>
 <body>
+    <br><br>
     <div id="scene-container"></div>
     <nav class="nav">
-        <div class="logo"><img src="logo.png" alt="SGATE Logo" class="logo-img" style="height: 25px; width: auto; margin-right: 0.75rem;">SGATE</div>
+        <div class="logo"><img src="logo.png" alt="SGATE Logo" class="logo-img">SGATE</div>
     </nav>
-    <div class="login-container">
-        <form class="login-form">
-            <h2>SGATE LOGIN</h2>
+    <div class="register-container">
+        <form class="register-form" id="registerForm">
+            <h2>CREATE ACCOUNT</h2>
+            <div class="form-group">
+                <input type="text" placeholder="Full Name" required>
+            </div>
             <div class="form-group">
                 <input type="email" placeholder="Email" required>
             </div>
             <div class="form-group">
-                <input type="password" placeholder="Password" required>
-                <a href="forgot.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem; margin-top: 0.5rem;"><u>Forgot Password?</u></a>
+                <input type="password" placeholder="Create Password" required>
             </div>
-            <button type="submit" class="login-btn">Login</button>
-            
-            <div class="social-login">
-                <button type="button" class="social-btn qr-btn" onclick="window.location.href='qr-login.html'">
-                    <i class="fas fa-qrcode"></i>
-                    Login with QR Code
-                </button>
-                <button type="button" class="social-btn google-btn">
-                    <i class="fab fa-google"></i>
-                    Continue with Google
-                </button>
-                <button type="button" class="social-btn facebook-btn">
-                    <i class="fab fa-facebook-f"></i>
-                    Continue with Facebook
-                </button>
-                
+            <div class="form-group">
+                <input type="password" placeholder="Confirm Password" required>
             </div>
+            <div class="terms-checkbox">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">I agree to the <a href="terms.html">Terms & Conditions</a> and <a href="privacy.html">Privacy Policy</a></label>
+            </div>
+            <button type="submit" class="register-btn">Create Account</button>
+            <br><br>
+            <a href="login.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem; display: block; text-align: center;">Already have an account? Login here</a>
         </form>
     </div>
 
