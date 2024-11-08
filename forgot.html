@@ -22,11 +22,27 @@
             --dark: #030014;
             --light: #ffffff;
             --gradient: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            
+            /* Responsive spacing units */
+            --space-xs: clamp(0.4rem, 0.8vw, 0.6rem);
+            --space-sm: clamp(0.6rem, 1.2vw, 0.8rem);
+            --space-md: clamp(0.8rem, 1.6vw, 1.2rem);
+            --space-lg: clamp(1.2rem, 2.4vw, 1.6rem);
+            --space-xl: clamp(1.6rem, 3.2vw, 2.4rem);
+
+            /* Responsive font sizes */
+            --text-xs: clamp(0.7rem, 1.2vw, 0.8rem);
+            --text-sm: clamp(0.8rem, 1.5vw, 0.9rem);
+            --text-md: clamp(0.9rem, 1.8vw, 1.1rem);
+            --text-lg: clamp(1.1rem, 2.2vw, 1.3rem);
+            --text-xl: clamp(1.3rem, 2.6vw, 1.8rem);
+            --text-2xl: clamp(1.8rem, 3.6vw, 2.6rem);
         }
 
         @font-face {
             font-family: 'Quantum';
             src: url('https://fonts.cdnfonts.com/css/quantum');
+            font-display: swap;
         }
 
         body {
@@ -38,7 +54,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            width: 1920px;
+            width: 100%;
         }
 
         #scene-container {
@@ -53,7 +69,7 @@
 
         .nav {
             width: 100%;
-            padding: 2rem;
+            padding: var(--space-md);
             z-index: 1000;
             display: flex;
             justify-content: center;
@@ -61,11 +77,11 @@
             background: rgba(3, 0, 20, 0.8);
             backdrop-filter: blur(10px);
             transform-style: preserve-3d;
-            height: 120px;
+            height: clamp(80px, 12vh, 120px);
         }
 
         .logo {
-            font-size: 3.5rem;
+            font-size: var(--text-2xl);
             font-weight: bold;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -78,9 +94,9 @@
         }
 
         .logo-img {
-            height: 80px !important;
+            height: clamp(40px, 8vh, 80px) !important;
             width: auto;
-            margin-right: 1rem !important;
+            margin-right: var(--space-sm) !important;
         }
 
         .forgot-container {
@@ -89,17 +105,17 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 2rem;
-            margin-top: 20px;
+            padding: var(--space-lg);
+            margin-top: var(--space-md);
             width: 100%;
         }
 
         .forgot-form {
             background: rgba(255, 255, 255, 0.9);
-            padding: 2.5rem;
+            padding: var(--space-xl);
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
-            width: 400px;
+            width: min(90%, 400px);
             backdrop-filter: blur(10px);
             transform-style: preserve-3d;
             animation: formFloat 3s ease-in-out infinite;
@@ -107,24 +123,24 @@
 
         .forgot-form h2 {
             text-align: center;
-            margin-bottom: 2.5rem;
-            font-size: 2rem;
+            margin-bottom: var(--space-xl);
+            font-size: var(--text-2xl);
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: var(--space-lg);
             width: 100%;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
+            padding: var(--space-sm);
             border: 2px solid rgba(112, 0, 255, 0.2);
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: var(--text-md);
             transition: all 0.3s ease;
         }
 
@@ -136,12 +152,12 @@
 
         .reset-btn {
             width: 100%;
-            padding: 12px;
+            padding: var(--space-sm);
             background: var(--gradient);
             border: none;
             border-radius: 8px;
             color: white;
-            font-size: 1.1rem;
+            font-size: var(--text-md);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -155,6 +171,30 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: var(--space-sm);
+            }
+
+            .forgot-container {
+                padding: var(--space-md);
+            }
+
+            .forgot-form {
+                padding: var(--space-lg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: var(--text-xl);
+            }
+
+            .forgot-form h2 {
+                font-size: var(--text-xl);
+            }
+        }
     </style>
 </head>
 <body>
@@ -166,13 +206,13 @@
     <div class="forgot-container">
         <form class="forgot-form" id="forgotForm">
             <h2>FORGOT PASSWORD</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">Enter your email address and we'll send you instructions to reset your password.</p>
+            <p style="text-align: center; color: #666; margin-bottom: var(--space-md); font-size: var(--text-sm);">Enter your email address and we'll send you instructions to reset your password.</p>
             <div class="form-group">
                 <input type="email" placeholder="Enter your email" required>
             </div>
             <button type="submit" class="reset-btn">Send Reset Link</button>
             <br><br>
-            <a href="login.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem; display: block; text-align: center;">Back to Login</a>
+            <a href="login.html" style="text-decoration: none; color: var(--secondary); font-size: var(--text-sm); display: block; text-align: center;">Back to Login</a>
         </form>
     </div>
 
@@ -184,7 +224,7 @@
         document.getElementById('scene-container').appendChild(renderer.domElement);
 
         // Create Security-themed Particles
-        const particleCount = 2000;
+        const particleCount = window.innerWidth < 768 ? 1000 : 2000;
         const particleGeometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
@@ -209,8 +249,14 @@
         particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
+        const getParticleSize = () => {
+            if (window.innerWidth < 480) return 0.4;
+            if (window.innerWidth < 768) return 0.3;
+            return 0.2;
+        };
+
         const particleMaterial = new THREE.PointsMaterial({
-            size: 0.2,
+            size: getParticleSize(),
             vertexColors: true,
             transparent: true,
             opacity: 0.7,
@@ -223,15 +269,33 @@
         const ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
 
-        camera.position.z = 30;
+        const updateCameraPosition = () => {
+            if (window.innerWidth < 480) return 45;
+            if (window.innerWidth < 768) return 40;
+            return 30;
+        };
+
+        camera.position.z = updateCameraPosition();
 
         let mouseX = 0;
         let mouseY = 0;
 
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - window.innerWidth / 2) / window.innerWidth;
-            mouseY = (event.clientY - window.innerHeight / 2) / window.innerHeight;
-        });
+        // Touch and mouse event handling with throttling
+        let lastMove = 0;
+        const handlePointerMove = (event) => {
+            const now = Date.now();
+            if (now - lastMove < 16) return; // Limit to ~60fps
+            lastMove = now;
+
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+            
+            mouseX = (clientX - window.innerWidth / 2) / window.innerWidth;
+            mouseY = (clientY - window.innerHeight / 2) / window.innerHeight;
+        };
+
+        document.addEventListener('mousemove', handlePointerMove);
+        document.addEventListener('touchmove', handlePointerMove, { passive: true });
 
         function animate() {
             requestAnimationFrame(animate);
@@ -256,10 +320,17 @@
 
         animate();
 
+        // Improved resize handler with debouncing
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.position.z = updateCameraPosition();
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                particleMaterial.size = getParticleSize();
+            }, 250);
         });
 
         // Form animations

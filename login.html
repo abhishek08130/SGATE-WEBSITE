@@ -22,11 +22,27 @@
             --dark: #030014;
             --light: #ffffff;
             --gradient: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            
+            /* Responsive spacing units */
+            --space-xs: clamp(0.4rem, 0.8vw, 0.6rem);
+            --space-sm: clamp(0.6rem, 1.2vw, 0.8rem);
+            --space-md: clamp(0.8rem, 1.6vw, 1.2rem);
+            --space-lg: clamp(1.2rem, 2.4vw, 1.6rem);
+            --space-xl: clamp(1.6rem, 3.2vw, 2.4rem);
+
+            /* Responsive font sizes */
+            --text-xs: clamp(0.7rem, 1.2vw, 0.8rem);
+            --text-sm: clamp(0.8rem, 1.5vw, 0.9rem); 
+            --text-md: clamp(0.9rem, 1.8vw, 1.1rem);
+            --text-lg: clamp(1.1rem, 2.2vw, 1.3rem);
+            --text-xl: clamp(1.3rem, 2.6vw, 1.8rem);
+            --text-2xl: clamp(1.8rem, 3.6vw, 2.6rem);
         }
 
         @font-face {
             font-family: 'Quantum';
             src: url('https://fonts.cdnfonts.com/css/quantum');
+            font-display: swap;
         }
 
         body {
@@ -38,7 +54,8 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            width: 1920px;
+            width: 100%;
+            max-width: 100vw;
         }
 
         #scene-container {
@@ -53,7 +70,7 @@
 
         .nav {
             width: 100%;
-            padding: 2rem;
+            padding: var(--space-md);
             z-index: 1000;
             display: flex;
             justify-content: center;
@@ -61,11 +78,12 @@
             background: rgba(3, 0, 20, 0.8);
             backdrop-filter: blur(10px);
             transform-style: preserve-3d;
-            height: 120px;
+            height: auto;
+            min-height: clamp(50px, 8vh, 70px);
         }
 
         .logo {
-            font-size: 3.5rem;
+            font-size: var(--text-2xl);
             font-weight: bold;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -78,9 +96,9 @@
         }
 
         .logo-img {
-            height: 80px !important;
+            height: clamp(25px, 5vw, 50px) !important;
             width: auto;
-            margin-right: 1rem !important;
+            margin-right: var(--space-sm) !important;
         }
 
         .login-container {
@@ -89,42 +107,45 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 2rem;
-            margin-top: 20px;
+            padding: var(--space-lg);
+            margin-top: var(--space-md);
             width: 100%;
+            min-height: calc(100vh - clamp(50px, 8vh, 70px));
         }
 
         .login-form {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 2.5rem;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: var(--space-lg);
+            border-radius: clamp(12px, 1.8vw, 18px);
             box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
-            width: 400px;
+            width: min(90%, 400px);
             backdrop-filter: blur(10px);
             transform-style: preserve-3d;
             animation: formFloat 3s ease-in-out infinite;
+            margin: auto;
         }
 
         .login-form h2 {
             text-align: center;
-            margin-bottom: 2.5rem;
-            font-size: 2rem;
+            margin-bottom: var(--space-md);
+            font-size: var(--text-lg);
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: var(--space-sm);
             width: 100%;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
+            padding: var(--space-sm);
             border: 2px solid rgba(112, 0, 255, 0.2);
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: var(--text-sm);
             transition: all 0.3s ease;
         }
 
@@ -136,14 +157,15 @@
 
         .login-btn {
             width: 100%;
-            padding: 12px;
+            padding: var(--space-sm);
             background: var(--gradient);
             border: none;
             border-radius: 8px;
             color: white;
-            font-size: 1.1rem;
+            font-size: var(--text-md);
             cursor: pointer;
             transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         .login-btn:hover {
@@ -152,21 +174,21 @@
         }
 
         .social-login {
-            margin-top: 2rem;
+            margin-top: var(--space-md);
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: var(--space-xs);
             width: 100%;
         }
 
         .social-btn {
             width: 100%;
-            padding: 12px 20px;
+            padding: var(--space-sm) var(--space-md);
             margin: 0;
             border: none;
             border-radius: 50px;
-            font-size: 1rem;
+            font-size: var(--text-sm);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -174,13 +196,61 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            gap: 10px;
+            gap: var(--space-xs);
+            font-weight: 500;
         }
 
         .social-btn i {
-            font-size: 1.2rem;
+            font-size: var(--text-md);
         }
 
+        /* Media Queries */
+        @media screen and (max-width: 480px) {
+            .login-form {
+                padding: var(--space-md);
+                width: 88%;
+            }
+
+            .social-btn {
+                font-size: var(--text-xs);
+                padding: var(--space-xs) var(--space-sm);
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            .login-form {
+                padding: var(--space-sm);
+                width: 92%;
+            }
+
+            .form-group {
+                margin-bottom: var(--space-xs);
+            }
+        }
+
+        @media (hover: hover) {
+            .social-btn:hover {
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .social-btn:hover::before {
+                left: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .social-btn, .login-btn {
+                transition: none;
+            }
+
+            @keyframes formFloat {
+                0%, 100% { transform: none; }
+                50% { transform: none; }
+            }
+        }
+
+        /* Social buttons styling */
         .google-btn {
             background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
             color: white;
@@ -202,11 +272,6 @@
             color: white;
         }
 
-        .social-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
         .social-btn::before {
             content: '';
             position: absolute;
@@ -223,18 +288,25 @@
             transition: 0.5s;
         }
 
-        .social-btn:hover::before {
-            left: 100%;
-        }
-
         @keyframes formFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
+
+        @media (prefers-color-scheme: dark) {
+            .login-form {
+                background: rgba(255, 255, 255, 0.9);
+            }
+        }
+
+        @supports (backdrop-filter: blur(10px)) {
+            .nav, .login-form {
+                backdrop-filter: blur(10px);
+            }
+        }
     </style>
 </head>
 <body>
-    <br><br>
     <div id="scene-container"></div>
     <nav class="nav">
         <div class="logo"><img src="logo.png" alt="SGATE Logo" class="logo-img">SGATE</div>
@@ -247,7 +319,7 @@
             </div>
             <div class="form-group">
                 <input type="password" placeholder="Password" required>
-                <a href="forgot.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem;"><u>Forgot Password?</u></a>
+                <a href="forgot.html" style="text-decoration: none; color: var(--secondary); font-size: var(--text-xs);"><u>Forgot Password?</u></a>
             </div>
             <button type="submit" class="login-btn">Login</button>
             
@@ -266,7 +338,7 @@
                 </button>
             </div>
             <br>
-            <a href="register.html" style="text-decoration: none; color: var(--secondary); font-size: 0.9rem; display: block; text-align: center;">Don't have an account? Register here</a>
+            <a href="register.html" style="text-decoration: none; color: var(--secondary); font-size: var(--text-xs); display: block; text-align: center;">Don't have an account? Register here</a>
         </form>
     </div>
 
@@ -274,11 +346,23 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        function updateRendererSize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        }
+        
+        updateRendererSize();
         document.getElementById('scene-container').appendChild(renderer.domElement);
 
         // Create Security-themed Particles
-        const particleCount = 2000;
+        const getParticleCount = () => {
+            if (window.innerWidth < 480) return 800;
+            if (window.innerWidth < 768) return 1200;
+            return 2000;
+        };
+
+        const particleCount = getParticleCount();
         const particleGeometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
@@ -303,8 +387,14 @@
         particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
+        const getParticleSize = () => {
+            if (window.innerWidth < 480) return 0.4;
+            if (window.innerWidth < 768) return 0.3;
+            return 0.2;
+        };
+
         const particleMaterial = new THREE.PointsMaterial({
-            size: 0.2,
+            size: getParticleSize(),
             vertexColors: true,
             transparent: true,
             opacity: 0.7,
@@ -317,15 +407,33 @@
         const ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
 
-        camera.position.z = 30;
+        const updateCameraPosition = () => {
+            if (window.innerWidth < 480) return 45;
+            if (window.innerWidth < 768) return 40;
+            return 30;
+        };
+
+        camera.position.z = updateCameraPosition();
 
         let mouseX = 0;
         let mouseY = 0;
 
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - window.innerWidth / 2) / window.innerWidth;
-            mouseY = (event.clientY - window.innerHeight / 2) / window.innerHeight;
-        });
+        // Touch and mouse event handling with throttling
+        let lastMove = 0;
+        const handlePointerMove = (event) => {
+            const now = Date.now();
+            if (now - lastMove < 16) return; // Limit to ~60fps
+            lastMove = now;
+
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+            
+            mouseX = (clientX - window.innerWidth / 2) / window.innerWidth;
+            mouseY = (clientY - window.innerHeight / 2) / window.innerHeight;
+        };
+
+        document.addEventListener('mousemove', handlePointerMove);
+        document.addEventListener('touchmove', handlePointerMove, { passive: true });
 
         function animate() {
             requestAnimationFrame(animate);
@@ -350,18 +458,26 @@
 
         animate();
 
+        // Improved resize handler with debouncing and performance optimizations
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                updateRendererSize();
+                camera.position.z = updateCameraPosition();
+                particleMaterial.size = getParticleSize();
+            }, 250);
         });
 
-        // Form animations
+        // Form animations with responsive values and performance considerations
         gsap.from('.login-form', {
-            duration: 1.5,
-            y: 100,
+            duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1.2,
+            y: window.innerWidth < 768 ? 30 : 50,
             opacity: 0,
-            ease: 'power4.out'
+            ease: 'power3.out',
+            clearProps: 'all'
         });
     </script>
 </body>
