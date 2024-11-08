@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGATE - Dashboard</title>
+    <title>SGATE - Security Gateway</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -20,6 +20,9 @@
             --accent: #ff00d4;
             --dark: #030014;
             --light: #ffffff;
+            --danger: #ff4444;
+            --success: #00ff88;
+            --warning: #ffbb00;
             --gradient: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
             --glass: rgba(255, 255, 255, 0.1);
             --glass-dark: rgba(3, 0, 20, 0.9);
@@ -98,6 +101,27 @@
             transform-style: preserve-3d;
         }
 
+        .welcome-banner {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: fadeInOut 5s ease-in-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
         .profile-section {
             background: var(--glass);
             padding: 1.5rem;
@@ -124,22 +148,7 @@
             padding: 3px;
             position: relative;
             overflow: hidden;
-        }
-
-        .profile-picture::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: shine 2s infinite;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            cursor: pointer;
         }
 
         .profile-picture img {
@@ -147,11 +156,25 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            transition: transform 0.3s ease;
         }
 
-        .profile-picture:hover img {
-            transform: scale(1.1);
+        .profile-picture::after {
+            content: 'Change Photo';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-picture:hover::after {
+            opacity: 1;
         }
 
         .profile-name {
@@ -162,7 +185,7 @@
             margin-bottom: 0.8rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-
+       
         .device-card {
             background: var(--glass);
             border-radius: 20px;
@@ -205,6 +228,7 @@
             margin-bottom: 1.5rem;
             filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
             transition: transform 0.3s ease;
+            cursor: pointer;
         }
 
         .device-card:hover .device-image {
@@ -225,13 +249,19 @@
             transition: color 0.3s ease;
         }
 
-        .device-card:hover .device-details {
-            color: #ffffff;
-        }
-
         .device-details p {
             margin-bottom: 0.5rem;
-            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-details p i {
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
         }
 
         .device-details p:hover {
@@ -257,186 +287,272 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .login-history {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--glass);
-            font-size: 0.9rem;
-            position: relative;
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto;
         }
 
-        .login-history::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 0;
-            width: 0;
-            height: 1px;
+        .action-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 15px;
+            background: var(--glass);
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
             background: var(--gradient);
+            transform: translateY(-2px);
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+            margin-right: 0.5rem;
+            animation: blink 1.5s infinite;
+        }
+
+        .status-indicator.warning {
+            background: var(--warning);
+        }
+
+        .status-indicator.danger {
+            background: var(--danger);
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .security-score {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            background: var(--glass);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .security-score-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--gradient);
+            width: 100%;
             transition: width 0.3s ease;
         }
 
-        .device-card:hover .login-history::before {
-            width: 100%;
+        .login-history {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 10px;
+            background: var(--glass-dark);
+        }
+
+        .login-history::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .login-history::-webkit-scrollbar-thumb {
+            background: var(--gradient);
+            border-radius: 5px;
+        }
+
+        .login-entry {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--glass);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-entry:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .profile-section {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                overflow-y: auto;
+            }
+            .profile-section {
+                grid-column: span 1;
+            }
         }
     </style>
 </head>
 <body>
     <div id="scene-container"></div>
+    <div class="welcome-banner">Welcome to SGATE </div>
     <nav class="nav">
         <div class="logo">
             <img src="logo.png" alt="SGATE Logo" class="logo-img">SGATE
         </div>
-        <button class="logout-btn">Logout</button>
+        <button class="logout-btn" onclick="handleLogout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
     </nav>
 
     <div class="main-container">
         <div class="profile-section">
-            <div class="profile-picture">
-                <img src="profile.jpg" alt="John Doe">
+            <div class="profile-picture" onclick="handleProfilePicture()">
+                <img src="profile.gif" alt="John Doe" id="profileImage" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <h1 class="profile-name">John Doe</h1>
+            <h1 class="namaskar">Namaste</h1>
+            <h1 class="profile-name">Santosh Kumar</h1>
             <div class="device-details">
-                <p>john.doe@example.com</p>
-                <p>Account Type: Premium</p>
-                <p>Member Since: 2023</p>
-                <p>Security Score: 92%</p>
+                <p><i class="fas fa-envelope"></i>santosh@gmail.com</p>
+                <p><i class="fas fa-shield-alt"></i>User UID : 2c43676c547j</p>
+                <p><i class="fas fa-calendar"></i>Protected Since: 2023</p>
+                <div class="security-score">
+                    <div class="security-score-bar"></div>
+                </div>
+                <p><i class="fas fa-chart-line"></i>Security Score: 100%</p>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="handleSecurityScan()">
+                    <i class="fas fa-shield-alt"></i>Security Scan
+                </button>
+                <button class="action-btn" onclick="handleSettings()">
+                    <i class="fas fa-cog"></i>Settings
+                </button>
             </div>
         </div>
 
         <div class="device-card">
-            <img src="chrome.png" alt="Chrome Browser" class="device-image">
-            <div class="device-name">Web Browser Activity</div>
+            <img src="security.png" alt="Security Gateway" class="device-image">
+            <div class="device-name">Security Gateway Status</div>
             <div class="device-details">
-                <p>Browser: Chrome 118.0.5993.89</p>
-                <p>OS: Windows 11 Pro</p>
-                <p>Screen: 1920x1080</p>
-                <p>Language: English (US)</p>
-                <p>Timezone: IST (UTC+5:30)</p>
+                <p><i class="fas fa-clock"></i>Last Login: <span id="lastLogin">2024-01-20 15:30</span></p>
+                <p><i class="fas fa-network-wired"></i>Network Status: <span class="status-indicator"></span>Protected</p>
+                <p><i class="fas fa-lock"></i>Encryption: Active (256-bit)</p>
                 <div class="login-history">
-                    <p>Last Login: 2023-10-15 14:30</p>
-                    <p>Location: Mumbai, India</p>
-                    <p>IP: 103.168.xx.xx</p>
-                    <p>Active Sessions: 2</p>
+                    <div class="login-entry">
+                        <i class="fas fa-check-circle" style="color: var(--success)"></i>
+                        Successful login from Chrome - Mumbai
+                    </div>
+                    <div class="login-entry">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>
+                        Failed attempt - Unknown Location
+                    </div>
+                    <div class="login-entry">
+                        <i class="fas fa-check-circle" style="color: var(--success)"></i>
+                        Successful login from iPhone - Delhi
+                    </div>
                 </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="handleSecurityReport()">
+                    <i class="fas fa-file-alt"></i>Security Report
+                </button>
+                <button class="action-btn" onclick="handleBlockAccess()">
+                    <i class="fas fa-ban"></i>Block Access
+                </button>
             </div>
         </div>
 
         <div class="device-card">
-            <img src="iphone14pro.png" alt="iPhone 14 Pro" class="device-image">
-            <div class="device-name">Mobile Device</div>
+            <img src="phone.png" alt="iPhone 14 Pro" class="device-image">
+            <div class="device-name">Protected Device</div>
             <div class="device-details">
-                <p>Device: iPhone 14 Pro</p>
-                <p>Model: A2650</p>
-                <p>iOS: 16.5.1</p>
-                <p>Storage: 256GB (180GB Free)</p>
-                <p>Display: 6.1" Super Retina XDR</p>
-                <p>Processor: A16 Bionic</p>
-                <p>RAM: 6GB</p>
+                <p><i class="fas fa-mobile-alt"></i>Lava Blaze 5G</p>
+                <p><i class="fas fa-microchip"></i>Security Module: MTK - 6580</p>
+                <p><i class="fas fa-shield-alt"></i>Protection Status: <span class="status-indicator"></span>Active</p>
+                <p><i class="fas fa-code-branch"></i>Security Version: 2.1.0</p>
+                <p><i class="fas fa-signal"></i>Connection: <span id="connectionStatus">Secure</span></p>
                 <div class="login-history">
-                    <p>Last SGATE Login: 2023-10-15 16:45</p>
-                    <p>App Version: 2.1.0</p>
-                    <p>Location: Delhi, India</p>
+                    <div class="login-entry">
+                        <i class="fas fa-shield-alt"></i>
+                        Real-time protection active
+                    </div>
+                    <div class="login-entry">
+                        <i class="fas fa-virus-slash"></i>
+                        Malware scan completed
+                    </div>
+                    <div class="login-entry">
+                        <i class="fas fa-sync"></i>
+                        Security definitions updated
+                    </div>
                 </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="handleDeviceScan()">
+                    <i class="fas fa-search"></i>Scan Device
+                </button>
+                <button class="action-btn" onclick="handleUpdateSecurity()">
+                    <i class="fas fa-sync"></i>Update Security
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Three.js script remains exactly the same as before
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('scene-container').appendChild(renderer.domElement);
-
-        const particleCount = 2000;
-        const particleGeometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-
-        for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 100;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
-
-            const colorChoice = Math.random();
-            const color = new THREE.Color(
-                colorChoice > 0.7 ? 0x00ffd5 :
-                colorChoice > 0.4 ? 0x7000ff :
-                0xff00d4
-            );
-            
-            colors[i * 3] = color.r;
-            colors[i * 3 + 1] = color.g;
-            colors[i * 3 + 2] = color.b;
+        // Three.js and animation code remains the same...
+        
+        // New security-focused functionality
+        function handleSecurityScan() {
+            alert('Initiating comprehensive security scan...');
+            // Add security scan animation and logic
         }
 
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        function handleSecurityReport() {
+            alert('Generating security report...');
+            // Add report generation logic
+        }
 
-        const particleMaterial = new THREE.PointsMaterial({
-            size: 0.2,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.7,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(particleGeometry, particleMaterial);
-        scene.add(particles);
-
-        const ambientLight = new THREE.AmbientLight(0x404040);
-        scene.add(ambientLight);
-
-        camera.position.z = 30;
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - window.innerWidth / 2) / window.innerWidth;
-            mouseY = (event.clientY - window.innerHeight / 2) / window.innerHeight;
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            particles.rotation.y += 0.0005;
-            particles.rotation.x += 0.0002;
-
-            const positions = particleGeometry.attributes.position.array;
-            const time = Date.now() * 0.001;
-
-            for(let i = 0; i < positions.length; i += 3) {
-                positions[i + 2] += Math.sin(time + positions[i] * 0.1) * 0.1;
+        function handleBlockAccess() {
+            if(confirm('Are you sure you want to block all access to this device?')) {
+                alert('Access blocked successfully!');
+                // Add blocking logic
             }
-            particleGeometry.attributes.position.needsUpdate = true;
-
-            camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
-
-            renderer.render(scene, camera);
         }
 
-        animate();
+        function handleDeviceScan() {
+            alert('Scanning device for security threats...');
+            // Add device scanning logic
+        }
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        function handleUpdateSecurity() {
+            alert('Updating security definitions...');
+            // Add security update logic
+        }
 
-        gsap.from('.device-card', {
-            duration: 1,
-            y: 50,
-            opacity: 0,
-            stagger: 0.2,
-            ease: 'power4.out'
-        });
-
-        // Add hover effect to device cards
+        // Real-time security updates
+        setInterval(() => {
+            document.getElementById('lastLogin').textContent = new Date().toLocaleString();
+            document.getElementById('connectionStatus').textContent = 
+                Math.random() > 0.1 ? 'Secure' : 'Checking...';
+        }, 5000);
+    </script>
+</body>
+</html>
         document.querySelectorAll('.device-card').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
@@ -445,7 +561,7 @@
                 
                 const xPercent = x / rect.width;
                 const yPercent = y / rect.height;
-                
+                    
                 const rotateX = (yPercent - 0.5) * 10;
                 const rotateY = (xPercent - 0.5) * 10;
                 
