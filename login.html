@@ -6,9 +6,176 @@
     <title>SGATE - Login</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
+            authDomain: "sgate-passkey.firebaseapp.com",
+            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com", 
+            projectId: "sgate-passkey",
+            storageBucket: "sgate-passkey.appStorage.app",
+            messagingSenderId: "373905852269",
+            appId: "1:373905852269:web:7f03a33be9c58bf3d7bc64",
+            measurementId: "G-09G7V7695H"
+        };
+
+        let userUID = null; // Variable to store user UID
+
+        // Function to redirect with UID
+        function redirectToDashboard(uid) {
+            window.location.href = `dash.html?uid=${uid}`;
+        }
+
+        // Function to get user data from Firestore by email
+        async function getUserDataByEmail(email) {
+            try {
+                const db = firebase.firestore();
+                const usersRef = db.collection('users');
+                const snapshot = await usersRef.where('email', '==', email.toString()).get();
+                
+                if (!snapshot.empty) {
+                    // Return the first matching document
+                    return {
+                        ...snapshot.docs[0].data(),
+                        uid: snapshot.docs[0].id
+                    };
+                } else {
+                    console.log("No user found with that email!");
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                return null;
+            }
+        }
+
+        // Wait for Firebase SDK to load
+        window.onload = function() {
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+
+            // Add submit handler for email/password login
+            document.querySelector('.login-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.querySelector('input[type="email"]').value.toString();
+                const password = document.querySelector('input[type="password"]').value;
+                const errorDiv = document.getElementById('error-message');
+
+                try {
+                    // First check if user exists in Firestore
+                    const userData = await getUserDataByEmail(email);
+                    if (!userData) {
+                        errorDiv.textContent = 'User not found. Please register first.';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+
+                    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    userUID = userData.uid;
+                    
+                    console.log("Signed in user:", user.email);
+                    console.log("User UID:", userUID);
+                    console.log("User Data:", userData);
+                    errorDiv.textContent = '';
+                    redirectToDashboard(userUID);
+                } catch (error) {
+                    console.error("Sign in error:", error);
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                }
+            });
+
+            // Add click handler to Google sign in button
+            document.getElementById('googleSignIn').addEventListener('click', async function() {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                const errorDiv = document.getElementById('error-message');
+
+                try {
+                    const result = await firebase.auth().signInWithPopup(provider);
+                    const user = result.user;
+                    
+                    // Check if user exists in Firestore by email
+                    const userData = await getUserDataByEmail(user.email.toString());
+                    if (!userData) {
+                        errorDiv.textContent = 'User not found. Please register first.';
+                        errorDiv.style.display = 'block';
+                        await firebase.auth().signOut();
+                        return;
+                    }
+
+                    userUID = userData.uid;
+                    console.log("Signed in user:", user.email);
+                    console.log("User UID:", userUID);
+                    console.log("User Data:", userData);
+                    errorDiv.textContent = '';
+                    redirectToDashboard(userUID);
+                } catch (error) {
+                    console.error("Sign in error:", error);
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                }
+            });
+
+            // Add click handler to Facebook sign in button
+            document.querySelector('.facebook-btn').addEventListener('click', async function() {
+                const provider = new firebase.auth.FacebookAuthProvider();
+                provider.addScope('email');
+                provider.addScope('public_profile');
+                const errorDiv = document.getElementById('error-message');
+
+                try {
+                    const result = await firebase.auth().signInWithPopup(provider);
+                    const user = result.user;
+                    
+                    // Check if user exists in Firestore by email
+                    const userData = await getUserDataByEmail(user.email.toString());
+                    if (!userData) {
+                        errorDiv.textContent = 'User not found. Please register first.';
+                        errorDiv.style.display = 'block';
+                        await firebase.auth().signOut();
+                        return;
+                    }
+
+                    userUID = userData.uid;
+                    console.log("Signed in Facebook user:", user.email);
+                    console.log("User UID:", userUID);
+                    console.log("User Data:", userData);
+                    errorDiv.textContent = '';
+                    redirectToDashboard(userUID);
+                } catch (error) {
+                    console.error("Facebook sign in error:", error);
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                }
+            });
+
+            // Add auth state listener
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    // Check if user exists in Firestore by email
+                    const userData = await getUserDataByEmail(user.email.toString());
+                    if (userData) {
+                        userUID = userData.uid;
+                        console.log("User is signed in:", user.email);
+                        console.log("User UID:", userUID);
+                        console.log("User Data:", userData);
+                        redirectToDashboard(userUID);
+                    }
+                }
+            });
+        };
+    </script>
+
     <style>
-        /* Reset Styles */
         * {
             margin: 0;
             padding: 0;
@@ -23,14 +190,12 @@
             --light: #ffffff;
             --gradient: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
             
-            /* Responsive spacing units */
             --space-xs: clamp(0.4rem, 0.8vw, 0.6rem);
             --space-sm: clamp(0.6rem, 1.2vw, 0.8rem);
             --space-md: clamp(0.8rem, 1.6vw, 1.2rem);
             --space-lg: clamp(1.2rem, 2.4vw, 1.6rem);
             --space-xl: clamp(1.6rem, 3.2vw, 2.4rem);
 
-            /* Responsive font sizes */
             --text-xs: clamp(0.7rem, 1.2vw, 0.8rem);
             --text-sm: clamp(0.8rem, 1.5vw, 0.9rem); 
             --text-md: clamp(0.9rem, 1.8vw, 1.1rem);
@@ -204,7 +369,30 @@
             font-size: var(--text-md);
         }
 
-        /* Media Queries */
+        .google-btn {
+            background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
+            color: white;
+            border: none;
+        }
+
+        .facebook-btn {
+            background: linear-gradient(45deg, #1877f2, #0099ff);
+            color: white;
+        }
+
+        .qr-btn {
+            background: linear-gradient(45deg, #00ffd5, #7000ff);
+            color: white;
+        }
+
+        #error-message {
+            color: #ff0000;
+            font-size: var(--text-sm);
+            margin-top: var(--space-xs);
+            text-align: center;
+            display: none;
+        }
+
         @media screen and (max-width: 480px) {
             .login-form {
                 padding: var(--space-md);
@@ -228,81 +416,9 @@
             }
         }
 
-        @media (hover: hover) {
-            .social-btn:hover {
-                transform: translateY(-2px) scale(1.02);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            }
-
-            .social-btn:hover::before {
-                left: 100%;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .social-btn, .login-btn {
-                transition: none;
-            }
-
-            @keyframes formFloat {
-                0%, 100% { transform: none; }
-                50% { transform: none; }
-            }
-        }
-
-        /* Social buttons styling */
-        .google-btn {
-            background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
-            color: white;
-            border: none;
-        }
-
-        .facebook-btn {
-            background: linear-gradient(45deg, #1877f2, #0099ff);
-            color: white;
-        }
-
-        .github-btn {
-            background: linear-gradient(45deg, #24292e, #404448);
-            color: white;
-        }
-
-        .qr-btn {
-            background: linear-gradient(45deg, #00ffd5, #7000ff);
-            color: white;
-        }
-
-        .social-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.2),
-                transparent
-            );
-            transition: 0.5s;
-        }
-
         @keyframes formFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .login-form {
-                background: rgba(255, 255, 255, 0.9);
-            }
-        }
-
-        @supports (backdrop-filter: blur(10px)) {
-            .nav, .login-form {
-                backdrop-filter: blur(10px);
-            }
         }
     </style>
 </head>
@@ -322,13 +438,14 @@
                 <a href="forgot.html" style="text-decoration: none; color: var(--secondary); font-size: var(--text-xs);"><u>Forgot Password?</u></a>
             </div>
             <button type="submit" class="login-btn">Login</button>
+            <div id="error-message"></div>
             
             <div class="social-login">
                 <button type="button" class="social-btn qr-btn" onclick="window.location.href='qr-login.html'">
                     <i class="fas fa-qrcode"></i>
                     Login with QR Code
                 </button>
-                <button type="button" class="social-btn google-btn">
+                <button type="button" class="social-btn google-btn" id="googleSignIn">
                     <i class="fab fa-google"></i>
                     Continue with Google
                 </button>
@@ -355,7 +472,6 @@
         updateRendererSize();
         document.getElementById('scene-container').appendChild(renderer.domElement);
 
-        // Create Security-themed Particles
         const getParticleCount = () => {
             if (window.innerWidth < 480) return 800;
             if (window.innerWidth < 768) return 1200;
@@ -418,11 +534,10 @@
         let mouseX = 0;
         let mouseY = 0;
 
-        // Touch and mouse event handling with throttling
         let lastMove = 0;
         const handlePointerMove = (event) => {
             const now = Date.now();
-            if (now - lastMove < 16) return; // Limit to ~60fps
+            if (now - lastMove < 16) return;
             lastMove = now;
 
             const clientX = event.touches ? event.touches[0].clientX : event.clientX;
@@ -458,7 +573,6 @@
 
         animate();
 
-        // Improved resize handler with debouncing and performance optimizations
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
@@ -471,7 +585,6 @@
             }, 250);
         });
 
-        // Form animations with responsive values and performance considerations
         gsap.from('.login-form', {
             duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1.2,
             y: window.innerWidth < 768 ? 30 : 50,
