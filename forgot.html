@@ -6,6 +6,8 @@
     <title>SGATE - Forgot Password</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Reset Styles */
@@ -167,6 +169,24 @@
             box-shadow: 0 5px 15px rgba(0, 255, 213, 0.4);
         }
 
+        #status-message {
+            text-align: center;
+            margin-top: var(--space-md);
+            padding: var(--space-sm);
+            border-radius: 4px;
+            font-size: var(--text-sm);
+        }
+
+        .success {
+            background-color: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+        }
+
+        .error {
+            background-color: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+        }
+
         @keyframes formFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
@@ -208,15 +228,48 @@
             <h2>FORGOT PASSWORD</h2>
             <p style="text-align: center; color: #666; margin-bottom: var(--space-md); font-size: var(--text-sm);">Enter your email address and we'll send you instructions to reset your password.</p>
             <div class="form-group">
-                <input type="email" placeholder="Enter your email" required>
+                <input type="email" id="email" placeholder="Enter your email" required>
             </div>
             <button type="submit" class="reset-btn">Send Reset Link</button>
+            <div id="status-message"></div>
             <br><br>
             <a href="login.html" style="text-decoration: none; color: var(--secondary); font-size: var(--text-sm); display: block; text-align: center;">Back to Login</a>
         </form>
     </div>
 
     <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
+            authDomain: "sgate-passkey.firebaseapp.com",
+            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com", 
+            projectId: "sgate-passkey",
+            storageBucket: "sgate-passkey.appStorage.app",
+            messagingSenderId: "373905852269",
+            appId: "1:373905852269:web:7f03a33be9c58bf3d7bc64",
+            measurementId: "G-09G7V7695H"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        // Handle form submission
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const statusMessage = document.getElementById('status-message');
+            
+            try {
+                await firebase.auth().sendPasswordResetEmail(email);
+                statusMessage.textContent = 'Password reset email sent! Please check your inbox.';
+                statusMessage.className = 'success';
+            } catch (error) {
+                console.error('Error:', error);
+                statusMessage.textContent = error.message;
+                statusMessage.className = 'error';
+            }
+        });
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

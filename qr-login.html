@@ -266,8 +266,8 @@ function startVerification(token) {
             if (userId) {
                 // Clear interval once verified
                 clearInterval(verificationInterval);
-               // window.location.href = `http://localhost:5500/user/${userId}`;
-               window.location.href = `/dash.html`;
+                // Redirect to dash.html with userId
+                window.location.href = `/dash.html?uid=${userId}`;
             }
         } catch (error) {
             console.error("Error verifying token:", error);
