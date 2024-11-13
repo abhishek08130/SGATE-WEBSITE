@@ -314,7 +314,7 @@
 
                 // Add user data to Firestore
                 await db.collection('Users').doc(user.uid).set({
-                    uid: user.uid,
+                    userId: user.uid,
                     fname: fullName,
                     email: email,
                     
