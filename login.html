@@ -35,7 +35,7 @@
         async function getUserDataByEmail(email) {
             try {
                 const db = firebase.firestore();
-                const usersRef = db.collection('users');
+                const usersRef = db.collection('Users');
                 const snapshot = await usersRef.where('email', '==', email.toString()).get();
                 
                 if (!snapshot.empty) {
