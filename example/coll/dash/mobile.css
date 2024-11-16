@@ -1,0 +1,20 @@
+.desk{
+  
+}
+
+@media screen and (max-width : 19420px){
+  .div-only-mobile{
+  visibility:hidden; 
+  display: none;
+  }
+}
+@media screen and (max-width : 906px){
+ .desk{
+  visibility:hidden;
+  display: none;
+  }
+ .div-only-mobile{
+  visibility:visible;
+  display: block;
+  }
+}

@@ -1,0 +1,43 @@
+﻿
+function SuccessMsg(MsgText) {
+    bootbox.alert('<img src="../img/submit.png" style="width:30px; height:30px;"/><b> &nbsp;&nbsp; ' + MsgText + '</b>');
+}
+
+function FailedMsg(MsgText) {
+    bootbox.alert('<img src="../img/failure.png" style="width:30px; height:30px;"/><b> &nbsp;&nbsp; ' + MsgText + '</b>');
+}
+
+function ValidationMsg(MsgText) {
+    bootbox.alert('<img src="../Images/Icons/pending.png" style="width:30px; height:30px;"/><b> &nbsp;&nbsp; ' + MsgText + '</b>');
+}
+
+function InformationMsg(MsgText) {
+    bootbox.alert('<img src="../Images/Icons/pending.png" style="width:30px; height:30px;"/><b> &nbsp;&nbsp; ' + MsgText + '</b>');
+}
+
+function AskforOperation(MsgText) {
+    var html = '<img src="../Images/questionmark.png" style="width:30px; height:30px;"/><b> &nbsp;&nbsp; ' + MsgText + '</b>';
+    return html;
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s\"]+(\.[^<>()[\]\\.,;:\s\"]+)*)|(\".+\"))((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
+function validateNumeric(input_str) {
+    var re = /^[0-9]+$/;
+    return re.test(input_str);
+}
+function validatePhoneNumber(input_str) {
+    var re = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+    return re.test(input_str);
+}
+
+
+function loadingDialog() {
+    return bootbox.dialog({
+        message: '<p class="text-center mb-0"><img src="../Images/LoginImg/loading.svg" style="width:50px; height:50px;"/>  Please wait ...</p>',
+        closeButton: false
+    });
+}

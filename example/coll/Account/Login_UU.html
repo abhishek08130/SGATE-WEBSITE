@@ -42,6 +42,15 @@
             color: red;
         }
 
+        .error-message {
+            display: none;
+            color: red;
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
         @media only screen and (max-width: 970px) {
             #pageFooter {
                 display: flex;
@@ -68,7 +77,7 @@
     <script src="../ProjectJS_Org/Account/login.js"></script> -->
 
     <!-- Main Form -->
-    <form action="" method="post">
+    <form id="loginForm" action="" method="post">
         <input id="hdnMsg" name="hdnMsg" type="hidden" value="UU">
         <input id="checkOnline" name="checkOnline" type="hidden" value="0">
         <input name="__RequestVerificationToken" type="hidden" value="HEaztFJTzoBtxtUktHZ3QSGhOId44P15WNIQbFAIhrEOxoCezRSPnHc-3DVNoX8mEumV-ZKW5cr6GCbf4OuAAlR_OcKopJltcUowWi3lzSo1">
@@ -91,6 +100,11 @@
                                     <div id="login-box-inner" style="background-color: rgba(128, 128, 128, 0.35)">
                                         <form role="form" action="">
                                             <!-- Login Form Fields -->
+                                            <div class="input-group">
+                                                <span id="error-message" class="error-message">
+                                                    Username or password is incorrect
+                                                </span>
+                                            </div>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-user" style="color: white;"></i></span>
                                                 <input autocomplete="off" class="form-control" data-val="true" data-val-required="The User name field is required." id="UserName" name="UserName" placeholder="User ID" style="font-size:12px; font-weight:500;" type="text" value="">
@@ -179,5 +193,11 @@
     <!-- Additional Scripts -->
     <script src="../js/bootstrap.js"></script>
     <script src="../js/scripts.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('error-message').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
