@@ -6,8 +6,10 @@
     <title>SGATE - Security Gateway</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -246,7 +248,7 @@
 
         .device-details {
             color: #a0a0a0;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             line-height: 1.6;
             transition: color 0.3s ease;
         }
@@ -255,20 +257,45 @@
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Show ellipsis for overflow */
+            padding: 0.3rem 0;
         }
 
         .device-details p i {
             color: var(--primary);
-            width: 20px;
+            width: 16px;
             text-align: center;
+            flex-shrink: 0;
+            font-size: 0.9rem;
         }
 
         .device-details p:hover {
             transform: translateX(10px);
             color: var(--primary);
+        }
+
+        /* Add responsive styles for device details */
+        @media (max-width: 768px) {
+            .device-details p {
+                font-size: 0.75rem;
+                padding-right: 10px;
+            }
+            
+            .device-details p i {
+                width: 15px;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .device-details p {
+                font-size: 0.7rem;
+            }
         }
 
         .logout-btn {
@@ -412,7 +439,10 @@
 </head>
 <body>
     <!-- Initialize Firebase -->
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
             authDomain: "sgate-passkey.firebaseapp.com",
@@ -425,21 +455,43 @@
         };
         
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
         // Get user ID from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const uid = urlParams.get('uid');
+        function getUidFromUrl() {
+            const currentUrl = window.location.href;
+            const uidMatch = currentUrl.match(/dash\.html\?uid=(.*)/);
+            console.log('Current URL:', currentUrl);
+            console.log('UID Match:', uidMatch);
+            return uidMatch ? uidMatch[1] : null;
+        }
+
+        const uid = getUidFromUrl();
+        console.log('Retrieved UID:', uid);
         
         if (!uid) {
+            console.log('No UID found in URL parameters, redirecting to login...');
             // Redirect to login if no UID found
             window.location.href = '/login.html';
         }
         
         // Update UI with UID
         window.onload = function() {
+            console.log('Updating UI with UID:', uid);
             document.querySelector('.device-details p:nth-child(2)').innerHTML = 
-                `<i class="fas fa-shield-alt"></i>User UID : ${uid}`;
+                `<i class="fas fa-shield-alt"></i>User UID: ${uid}`;
+        }
+
+        // Make handleLogout available globally
+        window.handleLogout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                alert('Logout failed. Please try again.');
+            }
         }
     </script>
 
@@ -463,7 +515,7 @@
             <h1 class="profile-name">Santosh Kumar</h1>
             <div class="device-details">
                 <p><i class="fas fa-envelope"></i>santosh@gmail.com</p>
-                <p><i class="fas fa-shield-alt"></i>User UID : Loading...</p>
+                <p><i class="fas fa-shield-alt"></i>User UID: Loading...</p>
                 <p><i class="fas fa-calendar"></i>Protected Since: 2023</p>
                 <div class="security-score">
                     <div class="security-score-bar"></div>
@@ -550,18 +602,6 @@
     <script>
         // Three.js and animation code remains the same...
         
-        async function handleLogout() {
-            try {
-                // Get Firebase Auth instance
-                const auth = firebase.getAuth();
-                await auth.signOut();
-                window.location.href = '/login.html';
-            } catch (error) {
-                console.error('Logout failed:', error);
-                alert('Logout failed. Please try again.');
-            }
-        }
-
         // New security-focused functionality
         function handleSecurityScan() {
             alert('Initiating comprehensive security scan...');
