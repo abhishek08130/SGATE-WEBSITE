@@ -256,12 +256,16 @@
             gap: 0.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .device-details p i {
             color: var(--primary);
             width: 20px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .device-details p:hover {
@@ -429,7 +433,7 @@
             <h1 class="profile-name">Santosh Kumar</h1>
             <div class="device-details">
                 <p><i class="fas fa-envelope"></i>santosh@gmail.com</p>
-                <p><i class="fas fa-shield-alt"></i>User UID : 2c43676c547j</p>
+                <p><i class="fas fa-shield-alt"></i>UID: <span id="userUid"></span></p>
                 <p><i class="fas fa-calendar"></i>Protected Since: 2023</p>
                 <div class="security-score">
                     <div class="security-score-bar"></div>
@@ -562,6 +566,7 @@
         // Fetch UID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const uid = urlParams.get('uid');
+        document.getElementById('userUid').textContent = uid;
         console.log('User UID:', uid);
     </script>
 </body>
