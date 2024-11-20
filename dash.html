@@ -6,10 +6,6 @@
     <title>SGATE - Security Gateway</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -248,7 +244,7 @@
 
         .device-details {
             color: #a0a0a0;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             line-height: 1.6;
             transition: color 0.3s ease;
         }
@@ -257,45 +253,20 @@
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            white-space: nowrap; /* Prevent text wrapping */
-            overflow: hidden;
-            text-overflow: ellipsis; /* Show ellipsis for overflow */
-            padding: 0.3rem 0;
         }
 
         .device-details p i {
             color: var(--primary);
-            width: 16px;
+            width: 20px;
             text-align: center;
-            flex-shrink: 0;
-            font-size: 0.9rem;
         }
 
         .device-details p:hover {
             transform: translateX(10px);
             color: var(--primary);
-        }
-
-        /* Add responsive styles for device details */
-        @media (max-width: 768px) {
-            .device-details p {
-                font-size: 0.75rem;
-                padding-right: 10px;
-            }
-            
-            .device-details p i {
-                width: 15px;
-                font-size: 0.75rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .device-details p {
-                font-size: 0.7rem;
-            }
         }
 
         .logout-btn {
@@ -438,63 +409,6 @@
     </style>
 </head>
 <body>
-    <!-- Initialize Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
-            authDomain: "sgate-passkey.firebaseapp.com",
-            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com", 
-            projectId: "sgate-passkey",
-            storageBucket: "sgate-passkey.appStorage.app",
-            messagingSenderId: "373905852269",
-            appId: "1:373905852269:web:7f03a33be9c58bf3d7bc64",
-            measurementId: "G-09G7V7695H"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Get user ID from URL parameters
-        function getUidFromUrl() {
-            const currentUrl = window.location.href;
-            const uidMatch = currentUrl.match(/dash\.html\?uid=(.*)/);
-            console.log('Current URL:', currentUrl);
-            console.log('UID Match:', uidMatch);
-            return uidMatch ? uidMatch[1] : null;
-        }
-
-        const uid = getUidFromUrl();
-        console.log('Retrieved UID:', uid);
-        
-        if (!uid) {
-            console.log('No UID found in URL parameters, redirecting to login...');
-            // Redirect to login if no UID found
-            window.location.href = '/login.html';
-        }
-        
-        // Update UI with UID
-        window.onload = function() {
-            console.log('Updating UI with UID:', uid);
-            document.querySelector('.device-details p:nth-child(2)').innerHTML = 
-                `<i class="fas fa-shield-alt"></i>User UID: ${uid}`;
-        }
-
-        // Make handleLogout available globally
-        window.handleLogout = async function() {
-            try {
-                await signOut(auth);
-                window.location.href = '/login.html';
-            } catch (error) {
-                console.error('Logout failed:', error);
-                alert('Logout failed. Please try again.');
-            }
-        }
-    </script>
-
     <div id="scene-container"></div>
     <div class="welcome-banner">Welcome to SGATE </div>
     <nav class="nav">
@@ -515,7 +429,7 @@
             <h1 class="profile-name">Santosh Kumar</h1>
             <div class="device-details">
                 <p><i class="fas fa-envelope"></i>santosh@gmail.com</p>
-                <p><i class="fas fa-shield-alt"></i>User UID: Loading...</p>
+                <p><i class="fas fa-shield-alt"></i>User UID : 2c43676c547j</p>
                 <p><i class="fas fa-calendar"></i>Protected Since: 2023</p>
                 <div class="security-score">
                     <div class="security-score-bar"></div>
@@ -601,7 +515,15 @@
 
     <script>
         // Three.js and animation code remains the same...
-        
+                function handleLogout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = '/login';
+            }).catch((error) => {
+                console.error('Logout failed:', error);
+                alert('Logout failed. Please try again.');
+            });
+        }
+
         // New security-focused functionality
         function handleSecurityScan() {
             alert('Initiating comprehensive security scan...');
@@ -636,6 +558,28 @@
             document.getElementById('connectionStatus').textContent = 
                 Math.random() > 0.1 ? 'Secure' : 'Checking...';
         }, 5000);
+    </script>
+</body>
+</html>
+        document.querySelectorAll('.device-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const xPercent = x / rect.width;
+                const yPercent = y / rect.height;
+                    
+                const rotateX = (yPercent - 0.5) * 10;
+                const rotateY = (xPercent - 0.5) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
     </script>
 </body>
 </html>

@@ -36,7 +36,7 @@
             try {
                 const db = firebase.firestore();
                 const usersRef = db.collection('Users');
-                const snapshot = await usersRef.where('email', '==', email.toString()).get();
+                const snapshot = await usersRef.where('email', '==', email.toLowerCase()).get();
                 
                 if (!snapshot.empty) {
                     // Return the first matching document
@@ -104,18 +104,24 @@
                     const user = result.user;
                     
                     // Check if user exists in Firestore by email
-                    const userData = await getUserDataByEmail(user.email.toString());
+                    const userData = await getUserDataByEmail(user.email.toLowerCase());
                     if (!userData) {
-                        errorDiv.textContent = 'User not found. Please register first.';
-                        errorDiv.style.display = 'block';
-                        await firebase.auth().signOut();
-                        return;
+                        // Create new user document in Firestore
+                        const db = firebase.firestore();
+                        const newUserData = {
+                            email: user.email.toLowerCase(),
+                            fname: user.displayName,
+                            // Add any other default fields you want
+                        };
+                        
+                        const userRef = await db.collection('Users').add(newUserData);
+                        userUID = userRef.id;
+                    } else {
+                        userUID = userData.uid;
                     }
 
-                    userUID = userData.uid;
                     console.log("Signed in user:", user.email);
                     console.log("User UID:", userUID);
-                    console.log("User Data:", userData);
                     errorDiv.textContent = '';
                     redirectToDashboard(userUID);
                 } catch (error) {
@@ -137,7 +143,7 @@
                     const user = result.user;
                     
                     // Check if user exists in Firestore by email
-                    const userData = await getUserDataByEmail(user.email.toString());
+                    const userData = await getUserDataByEmail(user.email.toLowerCase());
                     if (!userData) {
                         errorDiv.textContent = 'User not found. Please register first.';
                         errorDiv.style.display = 'block';
@@ -162,7 +168,7 @@
             firebase.auth().onAuthStateChanged(async (user) => {
                 if (user) {
                     // Check if user exists in Firestore by email
-                    const userData = await getUserDataByEmail(user.email.toString());
+                    const userData = await getUserDataByEmail(user.email.toLowerCase());
                     if (userData) {
                         userUID = userData.uid;
                         console.log("User is signed in:", user.email);
