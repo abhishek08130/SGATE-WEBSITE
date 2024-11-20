@@ -558,6 +558,11 @@
             document.getElementById('connectionStatus').textContent = 
                 Math.random() > 0.1 ? 'Secure' : 'Checking...';
         }, 5000);
+
+        // Fetch UID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const uid = urlParams.get('uid');
+        console.log('User UID:', uid);
     </script>
 </body>
 </html>
