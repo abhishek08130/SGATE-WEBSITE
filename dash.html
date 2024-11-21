@@ -539,19 +539,26 @@
     </div>
 
     <script>
-        // Initialize Firebase
+        // Initialize Firebase with persistence enabled
         const firebaseConfig = {
-            apiKey: "AIzaSyBOEl_rUKbkYLZFcuHGg9qmgQpbqXQhYgE",
-            authDomain: "sgate-398923.firebaseapp.com", 
-            projectId: "sgate-398923",
-            storageBucket: "sgate-398923.appspot.com",
-            messagingSenderId: "1071644680935",
-            appId: "1:1071644680935:web:a1c2c8f3ff30fec4c2c36c",
-            measurementId: "G-RLBD3QSXR1"
+            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
+            authDomain: "sgate-passkey.firebaseapp.com",
+            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
+            projectId: "sgate-passkey",
+            storageBucket: "sgate-passkey.firebasestorage.app",
+            messagingSenderId: "373905852269",
+            appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
+            measurementId: "G-FJE0KSY63T"
+        };
+
+        // Enable persistence before initializing Firebase
+        const settings = {
+            cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        db.settings(settings);
 
         // Check Firestore connection status
         db.collection('Users').doc('test').get()
@@ -560,16 +567,6 @@
             })
             .catch((error) => {
                 console.log('Firestore connection error:', error);
-            });
-
-        // Enable offline persistence
-        db.enablePersistence()
-            .catch((err) => {
-                if (err.code == 'failed-precondition') {
-                    console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-                } else if (err.code == 'unimplemented') {
-                    console.log('The current browser does not support offline persistence.');
-                }
             });
 
         function handleLogout() {
@@ -581,26 +578,31 @@
             });
         }
 
-        // Fetch user data from Firestore with offline fallback
+        // Get UID from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const uid = urlParams.get('uid');
         document.getElementById('userUid').textContent = uid || 'Offline';
 
-        db.collection('Users').doc(uid).get()
-            .then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('userName').textContent = data.fname;
-                    document.getElementById('userEmail').textContent = data.email;
-                } else {
-                    console.log("No such document!");
-                }
-            })
-            .catch((error) => { 
-                console.error("Error getting document:", error);
-                document.getElementById('userName').textContent = 'Offline Mode';
-                document.getElementById('userEmail').textContent = 'Offline Mode';
-            });
+        // Fetch user data from Firestore
+        if (uid) {
+            db.collection('Users').where('userId', '==', uid).get()
+                .then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        const userData = querySnapshot.docs[0].data();
+                        document.getElementById('userName').textContent = userData.fname || 'Offline Mode';
+                        document.getElementById('userEmail').textContent = userData.email || 'Offline Mode';
+                    } else {
+                        console.log("No user found with this UID");
+                        document.getElementById('userName').textContent = 'Offline Mode';
+                        document.getElementById('userEmail').textContent = 'Offline Mode';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching user data:", error);
+                    document.getElementById('userName').textContent = 'Offline Mode';
+                    document.getElementById('userEmail').textContent = 'Offline Mode';
+                });
+        }
 
         // Modified security-focused functionality for offline mode
         function handleSecurityScan() {

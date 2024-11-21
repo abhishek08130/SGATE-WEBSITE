@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore Connection Check</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <h1>Firestore Connection Status</h1>
+    <div id="status">Checking connection...</div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
+  authDomain: "sgate-passkey.firebaseapp.com",
+  databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
+  projectId: "sgate-passkey",
+  storageBucket: "sgate-passkey.firebasestorage.app",
+  messagingSenderId: "373905852269",
+  appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
+  measurementId: "G-FJE0KSY63T"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Check connection
+        function checkConnection() {
+            db.collection('Users').doc('test').get()
+                .then(() => {
+                    document.getElementById('status').innerHTML = 
+                        '<p style="color: green">✓ Connected to Firestore</p>';
+                })
+                .catch((error) => {
+                    document.getElementById('status').innerHTML = 
+                        `<p style="color: red">✗ Connection failed: ${error.message}</p>`;
+                });
+        }
+
+        // Check connection immediately
+        checkConnection();
+
+        // Add event listeners for online/offline status
+        window.addEventListener('online', () => {
+            checkConnection();
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('status').innerHTML = 
+                '<p style="color: orange">! Browser is offline</p>';
+        });
+    </script>
+</body>
+</html>
