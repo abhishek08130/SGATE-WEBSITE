@@ -28,7 +28,17 @@
 
         // Function to redirect with UID
         function redirectToDashboard(uid) {
-            window.location.href = `dash.html?uid=${uid}`;
+            const key = "SGATE2024";
+            let encrypted = uid.split('').map((char, i) => {
+                // XOR each character with key character
+                const keyChar = key[i % key.length].charCodeAt(0);
+                return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
+            }).join('');
+            // Add salt and reverse
+            encrypted = `${Date.now()}:${encrypted}`.split('').reverse().join('');
+            // Double base64 encode
+            encrypted = btoa(btoa(encrypted));
+            window.location.href = `dash.html?uid=${encrypted}`;
         }
 
         // Function to get user data from Firestore by email
