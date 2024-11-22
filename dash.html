@@ -510,8 +510,8 @@
             <img src="phone.png" alt="iPhone 14 Pro" class="device-image">
             <div class="device-name">Protected Device</div>
             <div class="device-details">
-                <p><i class="fas fa-mobile-alt"></i>Lava Blaze 5G</p>
-                <p><i class="fas fa-microchip"></i>Security Module: MTK - 6580</p>
+                <p><i class="fas fa-mobile-alt"></i><span id="phoneModel">Loading...</span></p>
+                <p><i class="fas fa-microchip"></i><span id="securityModule">Loading...</span></p>
                 <p><i class="fas fa-shield-alt"></i>Protection Status: <span class="status-indicator warning"></span>Limited</p>
                 <p><i class="fas fa-code-branch"></i>Security Version: 2.1.0</p>
                 <p><i class="fas fa-signal"></i>Connection: <span id="connectionStatus">Offline</span></p>
@@ -644,16 +644,24 @@
                         const userData = querySnapshot.docs[0].data();
                         document.getElementById('userName').textContent = userData.fname || 'Offline Mode';
                         document.getElementById('userEmail').textContent = userData.email || 'Offline Mode';
+                        
+                        // Update phone details
+                        document.getElementById('phoneModel').textContent = userData.phone || 'Unknown Device';
+                        document.getElementById('securityModule').textContent = userData.securityModule || 'Security Module: Unknown';
                     } else {
                         console.log("No user found with this UID");
                         document.getElementById('userName').textContent = 'Offline Mode';
                         document.getElementById('userEmail').textContent = 'Offline Mode';
+                        document.getElementById('phoneModel').textContent = 'Unknown Device';
+                        document.getElementById('securityModule').textContent = 'Security Module: Unknown';
                     }
                 })
                 .catch((error) => {
                     console.error("Error fetching user data:", error);
                     document.getElementById('userName').textContent = 'Offline Mode';
                     document.getElementById('userEmail').textContent = 'Offline Mode';
+                    document.getElementById('phoneModel').textContent = 'Unknown Device';
+                    document.getElementById('securityModule').textContent = 'Security Module: Unknown';
                 });
         }
 
