@@ -266,8 +266,18 @@ function startVerification(token) {
             if (userId) {
                 // Clear interval once verified
                 clearInterval(verificationInterval);
-               // window.location.href = `http://localhost:5500/user/${userId}`;
-               window.location.href = `/dash.html?uid=${userId}`;
+                // More complex encryption using multiple transformations
+                const key = "SGATE2024";
+                let encrypted = userId.split('').map((char, i) => {
+                    // XOR each character with key character
+                    const keyChar = key[i % key.length].charCodeAt(0);
+                    return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
+                }).join('');
+                // Add salt and reverse
+                encrypted = `${Date.now()}:${encrypted}`.split('').reverse().join('');
+                // Double base64 encode
+                encrypted = btoa(btoa(encrypted));
+                window.location.href = `/dash.html?uid=${encrypted}`;
             }
         } catch (error) {
             console.error("Error verifying token:", error);

@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -426,6 +428,7 @@
             z-index: 1001;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: none;
         }
     </style>
 </head>
@@ -451,10 +454,10 @@
                 <img src="profile.gif" alt="John Doe" id="profileImage" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             <h1 class="namaskar">Namaste</h1>
-            <h1 class="profile-name" id="userName">Offline Mode</h1>
+            <h1 class="profile-name" id="userName">Loading...</h1>
             <div class="device-details">
-                <p><i class="fas fa-envelope"></i><span id="userEmail">Offline Mode</span></p>
-                <p><i class="fas fa-shield-alt"></i>UID: <span id="userUid">Offline</span></p>
+                <p><i class="fas fa-envelope"></i><span id="userEmail">Loading...</span></p>
+                <p><i class="fas fa-shield-alt"></i>UID: <span id="userUid">Loading...</span></p>
                 <p><i class="fas fa-calendar"></i>Protected Since: 2023</p>
                 <div class="security-score">
                     <div class="security-score-bar"></div>
@@ -476,7 +479,7 @@
             <div class="device-name">Security Gateway Status</div>
             <div class="device-details">
                 <p><i class="fas fa-clock"></i>Last Login: <span id="lastLogin">2024-01-20 15:30</span></p>
-                <p><i class="fas fa-network-wired"></i>Network Status: <span class="status-indicator warning"></span>Offline</p>
+                <p><i class="fas fa-network-wired"></i>Network Status: <span class="status-indicator warning"></span></p>
                 <p><i class="fas fa-lock"></i>Encryption: Active (256-bit)</p>
                 <div class="login-history">
                     <div class="login-entry">
@@ -515,16 +518,9 @@
                 <div class="login-history">
                     <div class="login-entry">
                         <i class="fas fa-shield-alt"></i>
-                        Offline protection active
+                        End-to-End Encryption
                     </div>
-                    <div class="login-entry">
-                        <i class="fas fa-virus-slash"></i>
-                        Limited functionality
-                    </div>
-                    <div class="login-entry">
-                        <i class="fas fa-sync"></i>
-                        Waiting for connection
-                    </div>
+                    
                 </div>
             </div>
             <div class="action-buttons">
@@ -551,36 +547,93 @@
             measurementId: "G-FJE0KSY63T"
         };
 
-        // Enable persistence before initializing Firebase
-        const settings = {
-            cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-        };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        db.settings(settings);
+        const connectedRef = firebase.database().ref(".info/connected");
 
-        // Check Firestore connection status
-        db.collection('Users').doc('test').get()
-            .then(() => {
-                console.log('Firestore is connected');
-            })
-            .catch((error) => {
-                console.log('Firestore connection error:', error);
-            });
+        // Network status monitoring
+        function checkNetworkStatus() {
+            if (!navigator.onLine) {
+                document.querySelector('.offline-banner').style.display = 'block';
+                document.querySelector('.status-indicator').classList.add('warning');
+                document.getElementById('connectionStatus').textContent = 'Offline';
+            } else {
+                document.querySelector('.offline-banner').style.display = 'none';
+                // Firebase connection check will handle the online status
+            }
+        }
+
+        // Monitor Firebase connection state
+        connectedRef.on("value", (snap) => {
+            if (snap.val() === true) {
+                document.querySelector('.status-indicator').classList.remove('warning');
+                document.querySelector('.status-indicator').classList.add('success');
+                document.getElementById('connectionStatus').textContent = 'Online';
+                
+                // Add new login entry
+                const loginHistory = document.querySelector('.login-history');
+                const newEntry = document.createElement('div');
+                newEntry.className = 'login-entry';
+                newEntry.innerHTML = `
+                    <i class="fas fa-check-circle" style="color: var(--success)"></i>
+                    Connected to Firebase
+                `;
+                loginHistory.insertBefore(newEntry, loginHistory.firstChild);
+            } else {
+                document.querySelector('.status-indicator').classList.remove('success');
+                document.querySelector('.status-indicator').classList.add('warning');
+                document.getElementById('connectionStatus').textContent = 'Offline';
+                
+                // Add new login entry
+                const loginHistory = document.querySelector('.login-history');
+                const newEntry = document.createElement('div');
+                newEntry.className = 'login-entry';
+                newEntry.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>
+                    Disconnected from Firebase
+                `;
+                loginHistory.insertBefore(newEntry, loginHistory.firstChild);
+            }
+        });
+
+        // Initial check
+        checkNetworkStatus();
+
+        // Set up continuous monitoring
+        window.addEventListener('online', checkNetworkStatus);
+        window.addEventListener('offline', checkNetworkStatus);
+
+        // Check network status every 5 seconds
+        setInterval(checkNetworkStatus, 5000);
 
         function handleLogout() {
             firebase.auth().signOut().then(() => {
-                window.location.href = '/login';
+                window.location.href = 'login.html';
             }).catch((error) => {
                 console.error('Logout failed:', error);
-                alert('Logout failed. Please try again when online.');
+                window.location.href = 'login.html';
             });
         }
 
         // Get UID from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const uid = urlParams.get('uid');
+        const encryptedUid = urlParams.get('uid');
+        // Decrypt the userId by reversing base64 encoding
+        const uid = encryptedUid ? (() => {
+            // Double base64 decode
+            let decrypted = atob(atob(encryptedUid));
+            // Reverse string
+            decrypted = decrypted.split('').reverse().join('');
+            // Remove timestamp salt
+            decrypted = decrypted.split(':')[1];
+            // XOR decrypt with key
+            const key = "SGATE2024";
+            decrypted = decrypted.split('').map((char, i) => {
+                const keyChar = key[i % key.length].charCodeAt(0);
+                return String.fromCharCode(char.charCodeAt(0) ^ keyChar);
+            }).join('');
+            return decrypted;
+        })() : null;
         document.getElementById('userUid').textContent = uid || 'Offline';
 
         // Fetch user data from Firestore
@@ -604,7 +657,6 @@
                 });
         }
 
-        // Modified security-focused functionality for offline mode
         function handleSecurityScan() {
             alert('Limited security scan available in offline mode');
         }
@@ -624,23 +676,6 @@
         function handleUpdateSecurity() {
             alert('Security updates require an internet connection');
         }
-
-        // Modified real-time updates for offline mode
-        setInterval(() => {
-            document.getElementById('lastLogin').textContent = new Date().toLocaleString();
-            document.getElementById('connectionStatus').textContent = 'Offline';
-        }, 5000);
-
-        // Network status monitoring
-        window.addEventListener('online', function() {
-            document.querySelector('.offline-banner').style.display = 'none';
-            location.reload();
-        });
-
-        window.addEventListener('offline', function() {
-            document.querySelector('.offline-banner').style.display = 'block';
-        });
     </script>
 </body>
 </html>
-<!-- verificationInterval -->
