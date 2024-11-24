@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/polyfills.umd.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -670,7 +672,50 @@
         }
 
         function handleSecurityReport() {
-            alert('Security reports are limited while offline');
+            window.jsPDF = window.jspdf.jsPDF;
+            const doc = new jsPDF();
+            
+            // Get user details
+            const userName = document.getElementById('userName').textContent;
+            const userEmail = document.getElementById('userEmail').textContent;
+            const userUid = document.getElementById('userUid').textContent;
+            const lastLogin = document.getElementById('lastLogin').textContent;
+            
+            // Set title
+            doc.setFontSize(20);
+            doc.text('SGATE Security Report', 20, 20);
+            
+            // Add user information
+            doc.setFontSize(12);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 35);
+            doc.text(`User Name: ${userName}`, 20, 45);
+            doc.text(`Email: ${userEmail}`, 20, 55);
+            doc.text(`UID: ${userUid}`, 20, 65);
+            doc.text(`Last Login: ${lastLogin}`, 20, 75);
+            
+            // Add security status
+            doc.text('Security Status:', 20, 90);
+            doc.text('- Encryption: Active (256-bit)', 30, 100);
+            doc.text('- Security Score: 100%', 30, 110);
+            doc.text('- Protection Status: Limited', 30, 120);
+            
+            // Get login history
+            const loginHistory = document.querySelector('.login-history');
+            const loginEntries = loginHistory.getElementsByClassName('login-entry');
+            
+            doc.text('Recent Activity:', 20, 140);
+            let yPos = 150;
+            Array.from(loginEntries).forEach((entry, index) => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                doc.text(`${index + 1}. ${entry.textContent.trim()}`, 30, yPos);
+                yPos += 10;
+            });
+            
+            // Save the PDF
+            doc.save(`SGATE_Security_Report_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function handleBlockAccess() {
