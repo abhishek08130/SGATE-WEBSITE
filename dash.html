@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/polyfills.umd.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Rest of the head content remains the same -->
     <style>
         * {
             margin: 0;
@@ -573,7 +574,7 @@
     </div>
 
     <script>
-        // Initialize Firebase with persistence enabled
+        // Firebase config and initialization remains the same
         const firebaseConfig = {
             apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
             authDomain: "sgate-passkey.firebaseapp.com",
@@ -647,51 +648,55 @@
         function fetchLoginHistory(uid) {
             if (!uid) return;
 
-            db.collection('LoginHistory')
+            const loginHistoryRef = db.collection('loginHistory')
                 .where('userId', '==', uid)
                 .orderBy('timestamp', 'desc')
-                .limit(10)
-                .get()
-                .then((querySnapshot) => {
-                    const loginHistoryContainer = document.getElementById('loginHistory');
-                    loginHistoryContainer.innerHTML = ''; // Clear existing entries
+                .limit(10);
 
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const entry = document.createElement('div');
-                        entry.className = 'login-entry';
-                        
-                        // Determine icon based on status
-                        let icon;
-                        if (data.status === 'success') {
-                            icon = '<i class="fas fa-check-circle" style="color: var(--success)"></i>';
-                        } else if (data.status === 'warning') {
-                            icon = '<i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>';
-                        } else {
-                            icon = '<i class="fas fa-times-circle" style="color: var(--danger)"></i>';
-                        }
+            loginHistoryRef.onSnapshot((snapshot) => {
+                const loginHistoryContainer = document.getElementById('loginHistory');
+                loginHistoryContainer.innerHTML = '';
 
-                        // Format timestamp
-                        const date = data.timestamp.toDate();
-                        const formattedDate = date.toLocaleString();
-
-                        entry.innerHTML = `
-                            ${icon}
-                            ${data.message} - ${formattedDate}
-                        `;
-                        loginHistoryContainer.appendChild(entry);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Error fetching login history:", error);
-                    const loginHistoryContainer = document.getElementById('loginHistory');
+                if (snapshot.empty) {
                     loginHistoryContainer.innerHTML = `
                         <div class="login-entry">
-                            <i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>
-                            Failed to load login history
+                            <i class="fas fa-info-circle"></i>
+                            No login history available
                         </div>
                     `;
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = data.timestamp.toDate();
+                    const formattedDate = date.toLocaleString();
+
+                    const entry = document.createElement('div');
+                    entry.className = 'login-entry';
+                    entry.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        ${formattedDate} - ${data.device || 'Unknown Device'}
+                    `;
+                    loginHistoryContainer.appendChild(entry);
                 });
+
+                // Update last login time
+                if (!snapshot.empty) {
+                    const lastLoginData = snapshot.docs[0].data();
+                    const lastLoginDate = lastLoginData.timestamp.toDate();
+                    document.getElementById('lastLogin').textContent = lastLoginDate.toLocaleString();
+                }
+            }, (error) => {
+                console.error("Error fetching login history:", error);
+                const loginHistoryContainer = document.getElementById('loginHistory');
+                loginHistoryContainer.innerHTML = `
+                    <div class="login-entry">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading login history
+                    </div>
+                `;
+            });
         }
 
         // Initial check
@@ -762,15 +767,18 @@
                 })
                 .catch((error) => {
                     console.error("Error fetching user data:", error);
-                    document.getElementById('userName').textContent = 'Offline Mode';
-                    document.getElementById('userEmail').textContent = 'Offline Mode';
-                    document.getElementById('phoneModel').textContent = 'Unknown Device';
-                    document.getElementById('securityModule').textContent = 'Security Module: Unknown';
+                    setOfflineMode();
                 });
         }
 
+        function setOfflineMode() {
+            document.getElementById('userName').textContent = 'Offline Mode';
+            document.getElementById('userEmail').textContent = 'Offline Mode';
+            document.getElementById('phoneModel').textContent = 'Unknown Device';
+            document.getElementById('securityModule').textContent = 'Security Module: Unknown';
+        }
+
         function handleSecurityScan() {
-            // Construct the URL with the encrypted UID
             const baseUrl = 'https://myactivity.google.com/dark-web-report/';
             window.location.href = baseUrl;
         }
