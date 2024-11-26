@@ -10,6 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Login</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
         /* Reset Styles */
         * {
@@ -308,6 +310,20 @@
     <script>
 let verificationInterval;
 
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
+    authDomain: "sgate-passkey.firebaseapp.com",
+    databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
+    projectId: "sgate-passkey",
+    storageBucket: "sgate-passkey.firebasestorage.app",
+    messagingSenderId: "373905852269",
+    appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
+    measurementId: "G-FJE0KSY63T"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 async function generateQRCode() {
     try {
         console.log("Requesting token generation...");
@@ -343,8 +359,22 @@ function startVerification(token) {
             if (userId) {
                 // Clear interval once verified
                 clearInterval(verificationInterval);
-               // window.location.href = `http://localhost:5500/user/${userId}`;
-               window.location.href = `../index.html?userId=${userId}`;
+                
+                // Add login entry to Firebase
+                const device = navigator.userAgent || 'Unknown Device';
+                db.collection('loginHistory').add({
+                    userId: userId,
+                    device: UUERP By Uttaranchal University,
+                    timestamp: firebase.firestore.Timestamp.now()
+                })
+                .then(() => {
+                    console.log("Login entry added successfully");
+                    window.location.href = `../index.html?userId=${userId}`;
+                })
+                .catch((error) => {
+                    console.error("Error adding login entry:", error);
+                    window.location.href = `../index.html?userId=${userId}`;
+                });
             }
         } catch (error) {
             console.error("Error verifying token:", error);
