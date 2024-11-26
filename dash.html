@@ -503,7 +503,7 @@
             <div class="logo-tagline">Security at your Fingertips</div>
         </div>
         <div class="merchant-logo" id="merchantLogoContainer">
-            <h2>Organization Account</h2>
+            <!-- <h2>Organization Account</h2> -->
             <div class="logo-content">
                 <!-- Merchant logo and name will be populated dynamically -->
             </div>
@@ -546,19 +546,8 @@
                 <p><i class="fas fa-clock"></i>Last Login: <span id="lastLogin">2024-01-20 15:30</span></p>
                 <p><i class="fas fa-network-wired"></i>Network Status: <span class="status-indicator warning"></span></p>
                 <p><i class="fas fa-lock"></i>Encryption: Active (256-bit)</p>
-                <div class="login-history">
-                    <div class="login-entry">
-                        <i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>
-                        Connection lost - Working offline
-                    </div>
-                    <div class="login-entry">
-                        <i class="fas fa-check-circle" style="color: var(--success)"></i>
-                        Successful login from Chrome - Mumbai
-                    </div>
-                    <div class="login-entry">
-                        <i class="fas fa-check-circle" style="color: var(--success)"></i>
-                        Successful login from iPhone - Delhi
-                    </div>
+                <div class="login-history" id="loginHistory">
+                    <!-- Login history will be populated from Firestore -->
                 </div>
             </div>
         </div>
@@ -647,32 +636,63 @@
                 document.querySelector('.status-indicator').classList.remove('warning');
                 document.querySelector('.status-indicator').classList.add('success');
                 document.getElementById('connectionStatus').textContent = 'Online';
-                
-                // Add new login entry
-                const loginHistory = document.querySelector('.login-history');
-                const newEntry = document.createElement('div');
-                newEntry.className = 'login-entry';
-                newEntry.innerHTML = `
-                    <i class="fas fa-check-circle" style="color: var(--success)"></i>
-                    Connected to Firebase
-                `;
-                loginHistory.insertBefore(newEntry, loginHistory.firstChild);
             } else {
                 document.querySelector('.status-indicator').classList.remove('success');
                 document.querySelector('.status-indicator').classList.add('warning');
                 document.getElementById('connectionStatus').textContent = 'Offline';
-                
-                // Add new login entry
-                const loginHistory = document.querySelector('.login-history');
-                const newEntry = document.createElement('div');
-                newEntry.className = 'login-entry';
-                newEntry.innerHTML = `
-                    <i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>
-                    Disconnected from Firebase
-                `;
-                loginHistory.insertBefore(newEntry, loginHistory.firstChild);
             }
         });
+
+        // Function to fetch and display login history
+        function fetchLoginHistory(uid) {
+            if (!uid) return;
+
+            db.collection('LoginHistory')
+                .where('userId', '==', uid)
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .get()
+                .then((querySnapshot) => {
+                    const loginHistoryContainer = document.getElementById('loginHistory');
+                    loginHistoryContainer.innerHTML = ''; // Clear existing entries
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const entry = document.createElement('div');
+                        entry.className = 'login-entry';
+                        
+                        // Determine icon based on status
+                        let icon;
+                        if (data.status === 'success') {
+                            icon = '<i class="fas fa-check-circle" style="color: var(--success)"></i>';
+                        } else if (data.status === 'warning') {
+                            icon = '<i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>';
+                        } else {
+                            icon = '<i class="fas fa-times-circle" style="color: var(--danger)"></i>';
+                        }
+
+                        // Format timestamp
+                        const date = data.timestamp.toDate();
+                        const formattedDate = date.toLocaleString();
+
+                        entry.innerHTML = `
+                            ${icon}
+                            ${data.message} - ${formattedDate}
+                        `;
+                        loginHistoryContainer.appendChild(entry);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching login history:", error);
+                    const loginHistoryContainer = document.getElementById('loginHistory');
+                    loginHistoryContainer.innerHTML = `
+                        <div class="login-entry">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--warning)"></i>
+                            Failed to load login history
+                        </div>
+                    `;
+                });
+        }
 
         // Initial check
         checkNetworkStatus();
@@ -729,6 +749,9 @@
                         
                         // Get merchant info from email
                         getMerchantInfo(userData.email);
+
+                        // Fetch login history
+                        fetchLoginHistory(uid);
                     } else {
                         console.log("No user found with this UID");
                         document.getElementById('userName').textContent = 'Offline Mode';

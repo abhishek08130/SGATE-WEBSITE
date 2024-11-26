@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data Query</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <style>
+        :root {
+            --primary: #00ffd5;
+            --secondary: #7000ff;
+            --accent: #ff00d4;
+            --dark: #030014;
+            --light: #ffffff;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .search-section, .add-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .user-data, .history-data {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+        .entry {
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid var(--glass);
+        }
+
+        input {
+            padding: 12px;
+            margin: 10px 5px;
+            border-radius: 4px;
+            border: 1px solid var(--primary);
+            background: transparent;
+            color: var(--light);
+            width: 250px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: var(--primary);
+            border: none;
+            border-radius: 4px;
+            color: var(--dark);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: var(--secondary);
+            color: var(--light);
+        }
+
+        .error-message {
+            color: #ff4444;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            color: #00ff88;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>User Data Management</h2>
+        
+        <div class="search-section">
+            <h3>Enter User ID</h3>
+            <input type="text" id="userId" placeholder="Enter User ID manually">
+            <button onclick="fetchUserData()">Search</button>
+            <p id="searchStatus"></p>
+        </div>
+
+        <div class="add-section">
+            <h3>Add New User</h3>
+            <input type="text" id="newUserId" placeholder="User ID">
+            <input type="text" id="newName" placeholder="Name">
+            <input type="email" id="newEmail" placeholder="Email">
+            <input type="tel" id="newPhone" placeholder="Phone">
+            <input type="text" id="newSecurityModule" placeholder="Security Module">
+            <button onclick="addNewUser()">Add User</button>
+            
+            <h3>Add Login History</h3>
+            <input type="text" id="historyUserId" placeholder="User ID">
+            <input type="text" id="activity" placeholder="Activity">
+            <input type="text" id="device" placeholder="Device">
+            <input type="text" id="location" placeholder="Location">
+            <button onclick="addLoginHistory()">Add History</button>
+        </div>
+
+        <div class="user-data" id="userData">
+            <!-- User data will be displayed here -->
+        </div>
+
+        <div class="history-data" id="historyData">
+            <!-- History data will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
+            authDomain: "sgate-passkey.firebaseapp.com",
+            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
+            projectId: "sgate-passkey",
+            storageBucket: "sgate-passkey.firebasestorage.app",
+            messagingSenderId: "373905852269",
+            appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
+            measurementId: "G-FJE0KSY63T"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function showMessage(message, isError = false) {
+            const statusElement = document.getElementById('searchStatus');
+            statusElement.textContent = message;
+            statusElement.className = isError ? 'error-message' : 'success-message';
+        }
+
+        async function addNewUser() {
+            const userId = document.getElementById('newUserId').value.trim();
+            const userData = {
+                fname: document.getElementById('newName').value.trim(),
+                email: document.getElementById('newEmail').value.trim(),
+                phone: document.getElementById('newPhone').value.trim(),
+                securityModule: document.getElementById('newSecurityModule').value.trim()
+            };
+
+            if (!userId || !userData.fname || !userData.email) {
+                showMessage('Please fill in required fields (ID, Name, Email)', true);
+                return;
+            }
+
+            try {
+                await db.collection('Users').doc(userId).set(userData);
+                showMessage('User added successfully!');
+                // Clear inputs
+                document.getElementById('newUserId').value = '';
+                document.getElementById('newName').value = '';
+                document.getElementById('newEmail').value = '';
+                document.getElementById('newPhone').value = '';
+                document.getElementById('newSecurityModule').value = '';
+            } catch (error) {
+                console.error("Error adding user: ", error);
+                showMessage('Error adding user', true);
+            }
+        }
+
+        async function addLoginHistory() {
+            const userId = document.getElementById('historyUserId').value.trim();
+            const historyData = {
+                dta: document.getElementById('activity').value.trim(),
+                device: document.getElementById('device').value.trim(),
+                location: document.getElementById('location').value.trim(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (!userId || !historyData.dta) {
+                showMessage('Please fill in required fields (User ID, Activity)', true);
+                return;
+            }
+
+            try {
+                await db.collection(`Users/${userId}/historyData`).add(historyData);
+                showMessage('Login history added successfully!');
+                // Clear inputs
+                document.getElementById('historyUserId').value = '';
+                document.getElementById('activity').value = '';
+                document.getElementById('device').value = '';
+                document.getElementById('location').value = '';
+            } catch (error) {
+                console.error("Error adding history: ", error);
+                showMessage('Error adding login history', true);
+            }
+        }
+
+        function fetchUserData() {
+            const userId = document.getElementById('userId').value.trim();
+            
+            if (!userId) {
+                showMessage('Please enter a User ID', true);
+                return;
+            }
+
+            showMessage('Searching...');
+
+            document.getElementById('userData').innerHTML = '';
+            document.getElementById('historyData').innerHTML = '';
+
+            db.doc(`Users/${userId}`)
+                .get()
+                .then((doc) => {
+                    const userDataDiv = document.getElementById('userData');
+                    userDataDiv.innerHTML = '<h3>User Information</h3>';
+
+                    if (!doc.exists) {
+                        userDataDiv.innerHTML += '<p>No user found with this ID</p>';
+                        showMessage('No user found', true);
+                        return;
+                    }
+
+                    const data = doc.data();
+                    userDataDiv.innerHTML += `
+                        <div class="entry">
+                            <p><strong>Document ID:</strong> ${doc.id}</p>
+                            <p><strong>Name:</strong> ${data.fname || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                            <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                            <p><strong>Security Module:</strong> ${data.securityModule || 'N/A'}</p>
+                        </div>
+                    `;
+                    showMessage('User data found successfully');
+                    
+                    fetchLoginHistory(userId);
+                })
+                .catch((error) => {
+                    console.error("Error fetching user data:", error);
+                    showMessage('Error fetching user data', true);
+                });
+        }
+
+        function fetchLoginHistory(userId) {
+            db.collection(`Users/${userId}/historyData`)
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .get()
+                .then((querySnapshot) => {
+                    const historyDiv = document.getElementById('historyData');
+                    historyDiv.innerHTML = '<h3>Recent Login History</h3>';
+
+                    if (querySnapshot.empty) {
+                        historyDiv.innerHTML += '<p>No login history found</p>';
+                        return;
+                    }
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const timestamp = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                        
+                        historyDiv.innerHTML += `
+                            <div class="entry">
+                                <p><strong>Time:</strong> ${timestamp}</p>
+                                <p><strong>Activity:</strong> ${data.dta || 'N/A'}</p>
+                                <p><strong>Device:</strong> ${data.device || 'N/A'}</p>
+                                <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
+                            </div>
+                        `;
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching login history:", error);
+                    document.getElementById('historyData').innerHTML = 
+                        '<p class="error-message">Error fetching login history</p>';
+                });
+        }
+
+        document.getElementById('userId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchUserData();
+            }
+        });
+    </script>
+</body>
+</html>
