@@ -313,13 +313,13 @@ let verificationInterval;
 // Initialize Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
-    authDomain: "sgate-passkey.firebaseapp.com",
-    databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
-    projectId: "sgate-passkey",
-    storageBucket: "sgate-passkey.firebasestorage.app",
-    messagingSenderId: "373905852269",
-    appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
-    measurementId: "G-FJE0KSY63T"
+            authDomain: "sgate-passkey.firebaseapp.com",
+            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
+            projectId: "sgate-passkey",
+            storageBucket: "sgate-passkey.firebasestorage.app",
+            messagingSenderId: "373905852269",
+            appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
+            measurementId: "G-FJE0KSY63T"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -364,7 +364,7 @@ function startVerification(token) {
                 const device = navigator.userAgent || 'Unknown Device';
                 db.collection('loginHistory').add({
                     userId: userId,
-                    device: UUERP By Uttaranchal University,
+                    device: "UUERP By Uttaranchal University",
                     timestamp: firebase.firestore.Timestamp.now()
                 })
                 .then(() => {
