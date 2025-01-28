@@ -1,195 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login History</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        .input-section {
-            margin: 20px 0;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .input-section input {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .input-section button {
-            background: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        #loginHistory {
-            margin-top: 20px;
-        }
-
-        .login-entry {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .login-entry i {
-            color: #666;
-        }
-
-        .login-entry:last-child {
-            border-bottom: none;
-        }
-
-        #lastLogin {
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-            color: #666;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login History</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:20px;background:#f5f5f5;}
+.container{max-width:800px;margin:0 auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+h1{text-align:center;color:#333;}
+.input-section{margin:20px 0;padding:20px;background:#f9f9f9;border-radius:5px;}
+.input-section input{width:100%;padding:8px;margin:5px 0;border:1px solid #ddd;border-radius:4px;}
+.input-section button{background:#4CAF50;color:white;padding:10px 20px;border:none;border-radius:4px;cursor:pointer;margin-top:10px;}
+#loginHistory{margin-top:20px;}
+.login-entry{padding:15px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px;}
+.login-entry i{color:#666;}
+.login-entry:last-child{border-bottom:none;}
+#lastLogin{text-align:center;margin-top:20px;font-weight:bold;color:#666;}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Login History</h1>
-        
-        <div class="input-section">
-            <h3>Add New Login Entry</h3>
-            <input type="text" id="userId" placeholder="User ID" value="kxS9DKlTqnc431mgGGITkbQhiMv2">
-            <input type="text" id="device" placeholder="Device Name">
-            <button onclick="addLoginEntry()">Add Entry</button>
-        </div>
-
-        <div id="loginHistory"></div>
-        <div>Last Login: <span id="lastLogin">-</span></div>
-    </div>
-
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            // Your Firebase config here
-            apiKey: "AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",
-            authDomain: "sgate-passkey.firebaseapp.com",
-            databaseURL: "https://sgate-passkey-default-rtdb.firebaseio.com",
-            projectId: "sgate-passkey",
-            storageBucket: "sgate-passkey.firebasestorage.app",
-            messagingSenderId: "373905852269",
-            appId: "1:373905852269:web:09ae7715fb568f7fd7bc64",
-            measurementId: "G-FJE0KSY63T"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Fetch initial login history
-        fetchLoginHistory('umN7m6oWlWUEuPCUXZjbhKLy8I22');
-
-        function addLoginEntry() {
-            const userId = document.getElementById('userId').value;
-            const device = document.getElementById('device').value || 'Unknown Device';
-
-            db.collection('loginHistory').add({
-                userId: userId,
-                device: device,
-                timestamp: firebase.firestore.Timestamp.now()
-            })
-            .then(() => {
-                console.log("Login entry added successfully");
-                document.getElementById('device').value = ''; // Clear device input
-                fetchLoginHistory(userId); // Refresh the display
-            })
-            .catch((error) => {
-                console.error("Error adding login entry:", error);
-            });
-        }
-
-        function fetchLoginHistory(uid) {
-            if (!uid) return;
-
-            const loginHistoryRef = db.collection('loginHistory')
-                .where('userId', '==', uid)
-                .orderBy('timestamp', 'desc')
-                .limit(10);
-
-            loginHistoryRef.onSnapshot((snapshot) => {
-                const loginHistoryContainer = document.getElementById('loginHistory');
-                loginHistoryContainer.innerHTML = '';
-
-                if (snapshot.empty) {
-                    loginHistoryContainer.innerHTML = `
-                        <div class="login-entry">
-                            <i class="fas fa-info-circle"></i>
-                            No login history available
-                        </div>
-                    `;
-                    return;
-                }
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const date = data.timestamp.toDate();
-                    const formattedDate = date.toLocaleString();
-
-                    const entry = document.createElement('div');
-                    entry.className = 'login-entry';
-                    entry.innerHTML = `
-                        <i class="fas fa-clock"></i>
-                        ${formattedDate} - ${data.device || 'Unknown Device'}
-                    `;
-                    loginHistoryContainer.appendChild(entry);
-                });
-
-                // Update last login time
-                if (!snapshot.empty) {
-                    const lastLoginData = snapshot.docs[0].data();
-                    const lastLoginDate = lastLoginData.timestamp.toDate();
-                    document.getElementById('lastLogin').textContent = lastLoginDate.toLocaleString();
-                }
-            }, (error) => {
-                console.error("Error fetching login history:", error);
-                const loginHistoryContainer = document.getElementById('loginHistory');
-                loginHistoryContainer.innerHTML = `
-                    <div class="login-entry">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Error loading login history
-                    </div>
-                `;
-            });
-        }
-    </script>
+<div class="container">
+<h1>Login History</h1>
+<div class="input-section">
+<h3>Add New Login Entry</h3>
+<input type="text" id="userId" placeholder="User ID" value="kxS9DKlTqnc431mgGGITkbQhiMv2">
+<input type="text" id="device" placeholder="Device Name">
+<button onclick="addLoginEntry()">Add Entry</button>
+</div>
+<div id="loginHistory"></div>
+<div>Last Login: <span id="lastLogin">-</span></div>
+</div>
+<script>
+// Initialize Firebase
+const firebaseConfig={apiKey:"AIzaSyCp-_PuE4YtzY4O3yEZcKRMUk6TqqHMNDI",authDomain:"sgate-passkey.firebaseapp.com",databaseURL:"https://sgate-passkey-default-rtdb.firebaseio.com",projectId:"sgate-passkey",storageBucket:"sgate-passkey.firebasestorage.app",messagingSenderId:"373905852269",appId:"1:373905852269:web:09ae7715fb568f7fd7bc64",measurementId:"G-FJE0KSY63T"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+// Fetch initial login history
+fetchLoginHistory('umN7m6oWlWUEuPCUXZjbhKLy8I22');
+function addLoginEntry(){const userId=document.getElementById('userId').value;const device=document.getElementById('device').value||'Unknown Device';db.collection('loginHistory').add({userId:userId,device:device,timestamp:firebase.firestore.Timestamp.now()}).then(()=>{console.log("Login entry added successfully");document.getElementById('device').value='';fetchLoginHistory(userId);}).catch((error)=>{console.error("Error adding login entry:",error);});}
+function fetchLoginHistory(uid){if(!uid)return;const loginHistoryRef=db.collection('loginHistory').where('userId','==',uid).orderBy('timestamp','desc').limit(10);loginHistoryRef.onSnapshot((snapshot)=>{const loginHistoryContainer=document.getElementById('loginHistory');loginHistoryContainer.innerHTML='';if(snapshot.empty){loginHistoryContainer.innerHTML=`<div class="login-entry"><i class="fas fa-info-circle"></i>No login history available</div>`;return;}snapshot.forEach((doc)=>{const data=doc.data();const date=data.timestamp.toDate();const formattedDate=date.toLocaleString();const entry=document.createElement('div');entry.className='login-entry';entry.innerHTML=`<i class="fas fa-clock"></i>${formattedDate} - ${data.device||'Unknown Device'}`;loginHistoryContainer.appendChild(entry);});if(!snapshot.empty){const lastLoginData=snapshot.docs[0].data();const lastLoginDate=lastLoginData.timestamp.toDate();document.getElementById('lastLogin').textContent=lastLoginDate.toLocaleString();}},(error)=>{console.error("Error fetching login history:",error);const loginHistoryContainer=document.getElementById('loginHistory');loginHistoryContainer.innerHTML=`<div class="login-entry"><i class="fas fa-exclamation-triangle"></i>Error loading login history</div>`;});}
+</script>
 </body>
 </html>
-
-
